@@ -1,0 +1,18 @@
+Sonicproof
+Copyright 2026 Sonicproof contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Reference bank
+--------------
+src/sonicproof/data/refbank.npz contains embeddings computed with Google's
+EmbeddingGemma 2 from short clips generated with Stable Audio 3 Medium.
+No audio is included, only the embeddings and short text titles.
+
+Model
+-----
+The EmbeddingGemma 2 model (google/embeddinggemma-2) is not bundled with
+Sonicproof. It is downloaded from Hugging Face on first run. The model is
+released by Google under the Apache License, Version 2.0; its model card asks
+that deployments follow the Gemma Prohibited Use Policy:
+https://ai.google.dev/gemma/prohibited_use_policy

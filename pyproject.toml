@@ -1,0 +1,98 @@
+[project]
+name = "sonicproof"
+version = "0.1.0"
+description = "The audio QA layer for generative audio — check, rank and QC AI-generated sound with EmbeddingGemma 2."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.11"
+authors = [{ name = "Sonicproof contributors" }]
+keywords = [
+    "audio", "sound-effects", "generative-audio", "audio-qa", "embeddings", "embeddinggemma",
+    "stable-audio", "mcp", "loudness", "sound-library",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "typer>=0.12",
+    "rich>=13",
+    "numpy>=2.1",
+    "scipy>=1.11",
+    "soundfile>=0.12",
+    "pyloudnorm>=0.1.1",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "python-multipart>=0.0.9",
+    "mcp>=2.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/kanaworksai-hue/sonicproof"
+Repository = "https://github.com/kanaworksai-hue/sonicproof"
+Issues = "https://github.com/kanaworksai-hue/sonicproof/issues"
+Changelog = "https://github.com/kanaworksai-hue/sonicproof/releases"
+
+[project.optional-dependencies]
+model = [
+    "torch>=2.6",
+    "sentence-transformers[image]>=6.1",
+    "transformers>=5,<6",
+]
+
+[project.scripts]
+sonicproof = "sonicproof.cli:app"
+sp = "sonicproof.cli:app"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6", "pillow>=10"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Ship only what users need: the package, its tests and the UI sources. docs/ (screenshots) and the
+# eval/ tools for rebuilding the reference bank stay out of the sdist.
+[tool.hatch.build.targets.sdist]
+only-include = [
+    "src/sonicproof",
+    "tests",
+    "examples",
+    "web/src",
+    "web/index.html",
+    "web/package.json",
+    "web/package-lock.json",
+    "web/tsconfig.json",
+    "web/vite.config.ts",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "pyproject.toml",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sonicproof"]
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "RUF"]
+allowed-confusables = ["σ", "−", "…", "“", "”", "’"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/sonicproof/cli.py" = ["B008", "E402"]  # typer's Argument/Option defaults; env set before imports
+"src/sonicproof/server.py" = ["B008"]  # FastAPI's File/Form defaults
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,959 @@
+{
+ "name": "sonicproof-refbank-v1",
+ "seed0": 2001,
+ "clips": [
+  {
+   "title": "ref_wolf_howl",
+   "audio_type": "sfx",
+   "sound_source": "wolf",
+   "sound_action": "howling long and mournful",
+   "sound_material": "",
+   "sound_space": "night forest, distant",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_horse_gallop",
+   "audio_type": "sfx",
+   "sound_source": "horse hooves",
+   "sound_action": "galloping fast on dirt",
+   "sound_material": "",
+   "sound_space": "outdoor",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_cow_moo",
+   "audio_type": "sfx",
+   "sound_source": "cow",
+   "sound_action": "mooing slowly",
+   "sound_material": "",
+   "sound_space": "farm, outdoor",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_frogs",
+   "audio_type": "sfx",
+   "sound_source": "frogs",
+   "sound_action": "croaking in a chorus",
+   "sound_material": "",
+   "sound_space": "pond at night",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_crickets",
+   "audio_type": "sfx",
+   "sound_source": "crickets",
+   "sound_action": "chirping steadily",
+   "sound_material": "",
+   "sound_space": "summer night, outdoor",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_bee",
+   "audio_type": "sfx",
+   "sound_source": "bee",
+   "sound_action": "buzzing around closely",
+   "sound_material": "",
+   "sound_space": "garden, close-up",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_owl",
+   "audio_type": "sfx",
+   "sound_source": "owl",
+   "sound_action": "hooting softly",
+   "sound_material": "",
+   "sound_space": "forest at night",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_seagulls",
+   "audio_type": "sfx",
+   "sound_source": "seagulls",
+   "sound_action": "crying overhead",
+   "sound_material": "",
+   "sound_space": "harbour, outdoor",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_lion",
+   "audio_type": "sfx",
+   "sound_source": "lion",
+   "sound_action": "roaring powerfully",
+   "sound_material": "",
+   "sound_space": "savanna, outdoor",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_duck",
+   "audio_type": "sfx",
+   "sound_source": "duck",
+   "sound_action": "quacking",
+   "sound_material": "",
+   "sound_space": "pond, close",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_brook",
+   "audio_type": "sfx",
+   "sound_source": "small stream",
+   "sound_action": "babbling over rocks",
+   "sound_material": "",
+   "sound_space": "forest",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_waterfall",
+   "audio_type": "sfx",
+   "sound_source": "waterfall",
+   "sound_action": "roaring constant cascade",
+   "sound_material": "",
+   "sound_space": "outdoor, wide",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_cave_drip",
+   "audio_type": "sfx",
+   "sound_source": "water drops",
+   "sound_action": "dripping slowly with echo",
+   "sound_material": "",
+   "sound_space": "cave, reverberant",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_leaves",
+   "audio_type": "sfx",
+   "sound_source": "dry leaves",
+   "sound_action": "rustling in the wind",
+   "sound_material": "",
+   "sound_space": "forest floor",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_snow_steps",
+   "audio_type": "sfx",
+   "sound_source": "boots",
+   "sound_action": "walking crunching",
+   "sound_material": "",
+   "sound_space": "fresh snow",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_rain_roof",
+   "audio_type": "sfx",
+   "sound_source": "rain",
+   "sound_action": "drumming on a tin roof",
+   "sound_material": "",
+   "sound_space": "shed, indoor",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_distant_thunder",
+   "audio_type": "sfx",
+   "sound_source": "thunder",
+   "sound_action": "distant low rumbling",
+   "sound_material": "",
+   "sound_space": "outdoor, far away",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_city_street",
+   "audio_type": "sfx",
+   "sound_source": "busy city street",
+   "sound_action": "traffic, horns and people passing",
+   "sound_material": "",
+   "sound_space": "downtown, outdoor",
+   "duration_seconds": 8
+  },
+  {
+   "title": "ref_cafe",
+   "audio_type": "sfx",
+   "sound_source": "coffee shop",
+   "sound_action": "people chatting, cups clinking, espresso machine",
+   "sound_material": "",
+   "sound_space": "indoor",
+   "duration_seconds": 8
+  },
+  {
+   "title": "ref_office",
+   "audio_type": "sfx",
+   "sound_source": "open office",
+   "sound_action": "keyboards, phones and quiet chatter",
+   "sound_material": "",
+   "sound_space": "indoor",
+   "duration_seconds": 8
+  },
+  {
+   "title": "ref_train_station",
+   "audio_type": "sfx",
+   "sound_source": "train station",
+   "sound_action": "announcements chime and crowd footsteps",
+   "sound_material": "",
+   "sound_space": "large hall, reverberant",
+   "duration_seconds": 8
+  },
+  {
+   "title": "ref_construction",
+   "audio_type": "sfx",
+   "sound_source": "construction site",
+   "sound_action": "hammering, drilling and machinery",
+   "sound_material": "",
+   "sound_space": "outdoor",
+   "duration_seconds": 8
+  },
+  {
+   "title": "ref_stadium",
+   "audio_type": "sfx",
+   "sound_source": "stadium crowd",
+   "sound_action": "cheering and chanting",
+   "sound_material": "",
+   "sound_space": "large stadium",
+   "duration_seconds": 8
+  },
+  {
+   "title": "ref_jungle",
+   "audio_type": "sfx",
+   "sound_source": "jungle",
+   "sound_action": "exotic birds, insects and monkeys",
+   "sound_material": "",
+   "sound_space": "rainforest",
+   "duration_seconds": 8
+  },
+  {
+   "title": "ref_underwater",
+   "audio_type": "sfx",
+   "sound_source": "underwater",
+   "sound_action": "muffled bubbles and low rumble",
+   "sound_material": "",
+   "sound_space": "submerged",
+   "duration_seconds": 8
+  },
+  {
+   "title": "ref_spaceship_hum",
+   "audio_type": "sfx",
+   "sound_source": "spaceship interior",
+   "sound_action": "deep engine hum and soft beeps",
+   "sound_material": "",
+   "sound_space": "sci-fi",
+   "duration_seconds": 8
+  },
+  {
+   "title": "ref_baby_cry",
+   "audio_type": "sfx",
+   "sound_source": "baby",
+   "sound_action": "crying",
+   "sound_material": "",
+   "sound_space": "indoor room",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_laughter",
+   "audio_type": "sfx",
+   "sound_source": "group of people",
+   "sound_action": "laughing together",
+   "sound_material": "",
+   "sound_space": "indoor",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_cough",
+   "audio_type": "sfx",
+   "sound_source": "person",
+   "sound_action": "coughing a few times",
+   "sound_material": "",
+   "sound_space": "close-up, dry",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_heartbeat",
+   "audio_type": "sfx",
+   "sound_source": "heartbeat",
+   "sound_action": "steady thumping",
+   "sound_material": "",
+   "sound_space": "close, muffled",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_snore",
+   "audio_type": "sfx",
+   "sound_source": "person",
+   "sound_action": "snoring deeply",
+   "sound_material": "",
+   "sound_space": "bedroom",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_whistle",
+   "audio_type": "sfx",
+   "sound_source": "person",
+   "sound_action": "whistling a cheerful tune",
+   "sound_material": "",
+   "sound_space": "outdoor",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_crunch_eat",
+   "audio_type": "sfx",
+   "sound_source": "person",
+   "sound_action": "eating crunchy chips",
+   "sound_material": "",
+   "sound_space": "close-up, dry",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_running",
+   "audio_type": "sfx",
+   "sound_source": "sneakers",
+   "sound_action": "running fast",
+   "sound_material": "",
+   "sound_space": "concrete pavement",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_heels",
+   "audio_type": "sfx",
+   "sound_source": "high heels",
+   "sound_action": "walking",
+   "sound_material": "",
+   "sound_space": "marble floor, hallway",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_door_knock",
+   "audio_type": "sfx",
+   "sound_source": "wooden door",
+   "sound_action": "knocking three times",
+   "sound_material": "",
+   "sound_space": "indoor",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_doorbell",
+   "audio_type": "sfx",
+   "sound_source": "doorbell",
+   "sound_action": "ding dong chime",
+   "sound_material": "",
+   "sound_space": "house entrance",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_keys",
+   "audio_type": "sfx",
+   "sound_source": "keys",
+   "sound_action": "jingling in hand",
+   "sound_material": "",
+   "sound_space": "close-up",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_kettle",
+   "audio_type": "sfx",
+   "sound_source": "kettle",
+   "sound_action": "whistling as water boils",
+   "sound_material": "",
+   "sound_space": "kitchen",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_toilet",
+   "audio_type": "sfx",
+   "sound_source": "toilet",
+   "sound_action": "flushing",
+   "sound_material": "",
+   "sound_space": "bathroom",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_shower",
+   "audio_type": "sfx",
+   "sound_source": "shower",
+   "sound_action": "running water spraying",
+   "sound_material": "",
+   "sound_space": "bathroom tiles",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_dishes",
+   "audio_type": "sfx",
+   "sound_source": "dishes",
+   "sound_action": "clattering in a sink",
+   "sound_material": "",
+   "sound_space": "kitchen",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_chopping",
+   "audio_type": "sfx",
+   "sound_source": "knife",
+   "sound_action": "chopping vegetables on a board",
+   "sound_material": "",
+   "sound_space": "kitchen, close",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_blender",
+   "audio_type": "sfx",
+   "sound_source": "blender",
+   "sound_action": "whirring at high speed",
+   "sound_material": "",
+   "sound_space": "kitchen",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_vacuum",
+   "audio_type": "sfx",
+   "sound_source": "vacuum cleaner",
+   "sound_action": "running and moving",
+   "sound_material": "",
+   "sound_space": "living room",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_alarm_clock",
+   "audio_type": "sfx",
+   "sound_source": "alarm clock",
+   "sound_action": "beeping urgently",
+   "sound_material": "",
+   "sound_space": "bedroom",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_microwave",
+   "audio_type": "sfx",
+   "sound_source": "microwave",
+   "sound_action": "humming then beeping",
+   "sound_material": "",
+   "sound_space": "kitchen",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_paper_crumple",
+   "audio_type": "sfx",
+   "sound_source": "paper",
+   "sound_action": "crumpled by hand",
+   "sound_material": "",
+   "sound_space": "close-up, dry",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_zipper",
+   "audio_type": "sfx",
+   "sound_source": "zipper",
+   "sound_action": "zipped open and closed",
+   "sound_material": "",
+   "sound_space": "close-up",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_chair_creak",
+   "audio_type": "sfx",
+   "sound_source": "wooden chair",
+   "sound_action": "creaking under weight",
+   "sound_material": "",
+   "sound_space": "indoor",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_plate_break",
+   "audio_type": "sfx",
+   "sound_source": "ceramic plate",
+   "sound_action": "breaking on a tile floor",
+   "sound_material": "",
+   "sound_space": "kitchen",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_stick_snap",
+   "audio_type": "sfx",
+   "sound_source": "wooden stick",
+   "sound_action": "snapping in half",
+   "sound_material": "",
+   "sound_space": "close-up",
+   "duration_seconds": 2
+  },
+  {
+   "title": "ref_metal_clang",
+   "audio_type": "sfx",
+   "sound_source": "metal pipe",
+   "sound_action": "struck, clanging and ringing",
+   "sound_material": "",
+   "sound_space": "warehouse",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_hammer",
+   "audio_type": "sfx",
+   "sound_source": "hammer",
+   "sound_action": "hitting a nail repeatedly",
+   "sound_material": "",
+   "sound_space": "workshop",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_sword_clash",
+   "audio_type": "sfx",
+   "sound_source": "swords",
+   "sound_action": "clashing in a duel",
+   "sound_material": "",
+   "sound_space": "close-up",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_punch",
+   "audio_type": "sfx",
+   "sound_source": "fist",
+   "sound_action": "punching, heavy impact",
+   "sound_material": "",
+   "sound_space": "dry",
+   "duration_seconds": 2
+  },
+  {
+   "title": "ref_body_fall",
+   "audio_type": "sfx",
+   "sound_source": "body",
+   "sound_action": "falling onto the ground with a thud",
+   "sound_material": "",
+   "sound_space": "indoor",
+   "duration_seconds": 2
+  },
+  {
+   "title": "ref_gong",
+   "audio_type": "sfx",
+   "sound_source": "gong",
+   "sound_action": "struck once with long shimmering decay",
+   "sound_material": "",
+   "sound_space": "temple",
+   "duration_seconds": 6
+  },
+  {
+   "title": "ref_wind_chimes",
+   "audio_type": "sfx",
+   "sound_source": "wind chimes",
+   "sound_action": "tinkling in the breeze",
+   "sound_material": "",
+   "sound_space": "porch",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_chains",
+   "audio_type": "sfx",
+   "sound_source": "heavy chains",
+   "sound_action": "rattling and dragging",
+   "sound_material": "",
+   "sound_space": "dungeon, reverberant",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_balloon_pop",
+   "audio_type": "sfx",
+   "sound_source": "balloon",
+   "sound_action": "popping",
+   "sound_material": "",
+   "sound_space": "indoor",
+   "duration_seconds": 2
+  },
+  {
+   "title": "ref_cork",
+   "audio_type": "sfx",
+   "sound_source": "champagne cork",
+   "sound_action": "popping then fizzing",
+   "sound_material": "",
+   "sound_space": "indoor",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_basketball",
+   "audio_type": "sfx",
+   "sound_source": "basketball",
+   "sound_action": "dribbling",
+   "sound_material": "",
+   "sound_space": "gym, reverberant",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_camera",
+   "audio_type": "sfx",
+   "sound_source": "camera shutter",
+   "sound_action": "clicking a few times",
+   "sound_material": "",
+   "sound_space": "close-up",
+   "duration_seconds": 2
+  },
+  {
+   "title": "ref_typewriter",
+   "audio_type": "sfx",
+   "sound_source": "typewriter",
+   "sound_action": "typing with carriage return bell",
+   "sound_material": "",
+   "sound_space": "office",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_car_horn",
+   "audio_type": "sfx",
+   "sound_source": "car horn",
+   "sound_action": "honking",
+   "sound_material": "",
+   "sound_space": "street",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_tires",
+   "audio_type": "sfx",
+   "sound_source": "tires",
+   "sound_action": "screeching on asphalt",
+   "sound_material": "",
+   "sound_space": "street",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_motorcycle",
+   "audio_type": "sfx",
+   "sound_source": "motorcycle",
+   "sound_action": "revving and speeding away",
+   "sound_material": "",
+   "sound_space": "road",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_train_pass",
+   "audio_type": "sfx",
+   "sound_source": "train",
+   "sound_action": "passing by fast",
+   "sound_material": "",
+   "sound_space": "railway, outdoor",
+   "duration_seconds": 6
+  },
+  {
+   "title": "ref_jet",
+   "audio_type": "sfx",
+   "sound_source": "jet airplane",
+   "sound_action": "flying overhead",
+   "sound_material": "",
+   "sound_space": "sky, outdoor",
+   "duration_seconds": 6
+  },
+  {
+   "title": "ref_boat",
+   "audio_type": "sfx",
+   "sound_source": "motor boat",
+   "sound_action": "engine running on water",
+   "sound_material": "",
+   "sound_space": "lake",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_ambulance",
+   "audio_type": "sfx",
+   "sound_source": "ambulance siren",
+   "sound_action": "wailing",
+   "sound_material": "",
+   "sound_space": "city",
+   "duration_seconds": 6
+  },
+  {
+   "title": "ref_chainsaw",
+   "audio_type": "sfx",
+   "sound_source": "chainsaw",
+   "sound_action": "cutting wood",
+   "sound_material": "",
+   "sound_space": "forest",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_drill",
+   "audio_type": "sfx",
+   "sound_source": "power drill",
+   "sound_action": "drilling into wood",
+   "sound_material": "",
+   "sound_space": "workshop",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_jackhammer",
+   "audio_type": "sfx",
+   "sound_source": "jackhammer",
+   "sound_action": "pounding concrete",
+   "sound_material": "",
+   "sound_space": "street",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_printer",
+   "audio_type": "sfx",
+   "sound_source": "printer",
+   "sound_action": "printing pages",
+   "sound_material": "",
+   "sound_space": "office",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_elevator",
+   "audio_type": "sfx",
+   "sound_source": "elevator",
+   "sound_action": "ding and doors sliding",
+   "sound_material": "",
+   "sound_space": "building",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_robot",
+   "audio_type": "sfx",
+   "sound_source": "robot",
+   "sound_action": "moving with whirring servos",
+   "sound_material": "",
+   "sound_space": "lab",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_steam",
+   "audio_type": "sfx",
+   "sound_source": "steam",
+   "sound_action": "hissing from a valve",
+   "sound_material": "",
+   "sound_space": "factory",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_machine_gun",
+   "audio_type": "sfx",
+   "sound_source": "machine gun",
+   "sound_action": "firing a long burst",
+   "sound_material": "",
+   "sound_space": "outdoor",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_shotgun",
+   "audio_type": "sfx",
+   "sound_source": "shotgun",
+   "sound_action": "firing and pumping",
+   "sound_material": "",
+   "sound_space": "outdoor",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_fireworks",
+   "audio_type": "sfx",
+   "sound_source": "fireworks",
+   "sound_action": "exploding and crackling",
+   "sound_material": "",
+   "sound_space": "night sky",
+   "duration_seconds": 6
+  },
+  {
+   "title": "ref_rocket",
+   "audio_type": "sfx",
+   "sound_source": "rocket",
+   "sound_action": "launching with a roar",
+   "sound_material": "",
+   "sound_space": "outdoor",
+   "duration_seconds": 6
+  },
+  {
+   "title": "ref_magic",
+   "audio_type": "sfx",
+   "sound_source": "magic spell",
+   "sound_action": "sparkling shimmering whoosh",
+   "sound_material": "",
+   "sound_space": "fantasy",
+   "duration_seconds": 3
+  },
+  {
+   "title": "ref_monster",
+   "audio_type": "sfx",
+   "sound_source": "monster",
+   "sound_action": "roaring menacingly",
+   "sound_material": "",
+   "sound_space": "cave",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_portal",
+   "audio_type": "sfx",
+   "sound_source": "portal",
+   "sound_action": "opening with a swirling energy hum",
+   "sound_material": "",
+   "sound_space": "sci-fi",
+   "duration_seconds": 4
+  },
+  {
+   "title": "ref_static",
+   "audio_type": "sfx",
+   "sound_source": "radio",
+   "sound_action": "static and tuning noise",
+   "sound_material": "",
+   "sound_space": "close",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_error",
+   "audio_type": "sfx",
+   "sound_source": "computer",
+   "sound_action": "error buzzer",
+   "sound_material": "",
+   "sound_space": "dry",
+   "duration_seconds": 2
+  },
+  {
+   "title": "ref_coin_pickup",
+   "audio_type": "sfx",
+   "sound_source": "video game",
+   "sound_action": "coin pickup chime",
+   "sound_material": "",
+   "sound_space": "8-bit, dry",
+   "duration_seconds": 1.5
+  },
+  {
+   "title": "ref_whoosh",
+   "audio_type": "sfx",
+   "sound_source": "transition",
+   "sound_action": "fast whoosh",
+   "sound_material": "",
+   "sound_space": "cinematic",
+   "duration_seconds": 2
+  },
+  {
+   "title": "ref_boing",
+   "audio_type": "sfx",
+   "sound_source": "cartoon spring",
+   "sound_action": "boing",
+   "sound_material": "",
+   "sound_space": "comedic",
+   "duration_seconds": 2
+  },
+  {
+   "title": "ref_riser",
+   "audio_type": "sfx",
+   "sound_source": "tension riser",
+   "sound_action": "building up",
+   "sound_material": "",
+   "sound_space": "cinematic",
+   "duration_seconds": 5
+  },
+  {
+   "title": "ref_cello",
+   "audio_type": "instrument",
+   "prompt": "Solo cello playing a slow mournful melody, rich and warm.",
+   "bpm": 66,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_flute",
+   "audio_type": "instrument",
+   "prompt": "Solo wooden flute playing a light airy melody.",
+   "bpm": 90,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_trumpet",
+   "audio_type": "instrument",
+   "prompt": "Solo trumpet playing a bright fanfare.",
+   "bpm": 110,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_harp",
+   "audio_type": "instrument",
+   "prompt": "Solo harp playing gentle glissandos and arpeggios.",
+   "bpm": 80,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_electric_guitar",
+   "audio_type": "instrument",
+   "prompt": "Distorted electric guitar playing a heavy rock riff.",
+   "bpm": 120,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_bass",
+   "audio_type": "instrument",
+   "prompt": "Funky slap bass guitar groove.",
+   "bpm": 105,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_koto",
+   "audio_type": "instrument",
+   "prompt": "Japanese koto playing a traditional pentatonic melody.",
+   "bpm": 80,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_erhu",
+   "audio_type": "instrument",
+   "prompt": "Chinese erhu playing an expressive sad melody.",
+   "bpm": 70,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_marimba",
+   "audio_type": "instrument",
+   "prompt": "Marimba playing a bouncy pattern.",
+   "bpm": 120,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_music_box",
+   "audio_type": "instrument",
+   "prompt": "Music box playing a delicate lullaby.",
+   "bpm": 90,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_heavy_metal",
+   "audio_type": "music",
+   "prompt": "Heavy metal with fast double kick drums and shredding guitars.",
+   "bpm": 170,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_reggae",
+   "audio_type": "music",
+   "prompt": "Laid-back reggae with offbeat guitar skank and deep bass.",
+   "bpm": 80,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_bossa",
+   "audio_type": "music",
+   "prompt": "Bossa nova with nylon guitar and soft percussion.",
+   "bpm": 120,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_techno",
+   "audio_type": "music",
+   "prompt": "Dark driving techno with pounding kick and hypnotic synth.",
+   "bpm": 130,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_country",
+   "audio_type": "music",
+   "prompt": "Country music with banjo, fiddle and acoustic guitar.",
+   "bpm": 110,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_horror",
+   "audio_type": "music",
+   "prompt": "Creepy horror movie score with dissonant strings and eerie atmosphere.",
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_happy_ukulele",
+   "audio_type": "music",
+   "prompt": "Happy upbeat ukulele and whistling-style melody with claps.",
+   "bpm": 115,
+   "duration_seconds": 10
+  },
+  {
+   "title": "ref_synthwave",
+   "audio_type": "music",
+   "prompt": "Retro 80s synthwave with lush pads and gated drums.",
+   "bpm": 100,
+   "duration_seconds": 10
+  }
+ ]
+}

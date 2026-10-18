@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Models / media / outputs (never commit)
+.cache/
+samples/
+out/
+*.wav
+*.flac
+*.mp3
+*.ogg
+*.mp4
+!tests/fixtures/**
+
+# OS / runtime
+.DS_Store
+Thumbs.db
+.claude/
+
+# Web UI sources (the build in src/sonicproof/web is shipped)
+web/node_modules/
+

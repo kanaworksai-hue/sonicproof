@@ -1,0 +1,50 @@
+name: Bug report
+description: Something does not work, crashes, or gives a clearly wrong result.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please **do not attach copyrighted audio**. If a file matters, describe it
+        (format, length, channels, sample rate) or attach a short clip you made yourself.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and output
+      description: The exact command (or MCP tool call / workbench steps) and its output. With `--json` if possible.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "`sonicproof doctor` output"
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: e.g. macOS 15 on Apple M1, Windows 11, Ubuntu 24.04
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version and how you installed Sonicproof
+      placeholder: e.g. 3.12, uv tool install "sonicproof[model]"
+    validations:
+      required: true
+  - type: textarea
+    id: more
+    attributes:
+      label: Anything else
+      description: Traceback (run with SONICPROOF_DEBUG=1), screenshots, the MCP client you use.
