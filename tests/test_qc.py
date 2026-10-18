@@ -83,6 +83,35 @@ def test_loop_seam_sparse_crackle():
     assert _status(qc.run(_audio(x), loop=True), "loop") == "pass"
 
 
+def test_loop_seam_dense_noise_is_judged_against_its_own_roughness():
+    # a cross-faded rain/wind bed: the wrap-around step is as large as any other step in the noise
+    rng = np.random.default_rng(1)
+    bed = 0.15 * rng.standard_normal(SR * 3)
+    fade = SR // 2
+    ramp = np.linspace(0, 1, fade)
+    loop = bed[:-fade].copy()
+    loop[:fade] = bed[:fade] * ramp + bed[-fade:] * (1 - ramp)
+    c = next(c for c in qc.run(_audio(loop), loop=True) if c.key == "loop")
+    assert c.data["jump"] > 0.03  # the old absolute threshold alone would have warned
+    assert c.status == "pass"
+
+
+def test_loop_seam_tonal_cut_still_flagged():
+    t = np.arange(SR) / SR
+    x = 0.1 * np.sin(2 * np.pi * 220.4 * t)  # cut mid-cycle: a small but clearly audible step
+    c = next(c for c in qc.run(_audio(x), loop=True) if c.key == "loop")
+    assert c.status == "warn" and c.code == "loop.mismatch" and c.data["ratio"] > 4
+
+
+def test_loop_seam_checks_each_channel():
+    # noisy left channel must not hide a click on a clean right channel
+    rng = np.random.default_rng(2)
+    t = np.arange(SR) / SR
+    left = 0.3 * rng.standard_normal(SR)
+    right = 0.3 * np.sin(2 * np.pi * 10.25 * t)
+    assert _status(qc.run(_audio(np.stack([left, right], axis=1)), loop=True), "loop") == "fail"
+
+
 def test_target_lufs():
     checks = qc.run(_audio(np.stack([_decay()] * 2, axis=1)), target_lufs=-14)
     c = next(c for c in checks if c.key == "loudness")
