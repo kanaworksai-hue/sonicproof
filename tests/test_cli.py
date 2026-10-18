@@ -134,6 +134,31 @@ def test_missing_model_extra_is_a_setup_error(run, tmp_path, monkeypatch):
     )
 
 
+def test_doctor_load_reports_the_model_it_just_downloaded(run, monkeypatch):
+    import types
+
+    import sonicproof.model as model
+
+    downloaded = {"done": False}
+
+    def fake_judge(vision=False):
+        downloaded["done"] = True  # what loading the model for the first time does
+        return Judge(embedder=FakeEmbedder())
+
+    monkeypatch.setattr(cli, "_judge", fake_judge)
+    monkeypatch.setattr(model, "require_model_extra", lambda: None)
+    monkeypatch.setattr(model, "pick_device", lambda: "cpu")
+    monkeypatch.setattr(model, "model_cached", lambda: downloaded["done"])
+    monkeypatch.setitem(sys.modules, "torch", types.SimpleNamespace(__version__="0.0"))
+    monkeypatch.setenv("HF_HUB_OFFLINE", "0")
+    r = run("doctor", env={"COLUMNS": "200"})
+    assert r.exit_code == 0 and "(not downloaded)" in r.stdout and "Inference" not in r.stdout
+    downloaded["done"] = False
+    r = run("doctor", "--load", env={"COLUMNS": "200"})
+    assert r.exit_code == 0 and "Inference" in r.stdout
+    assert "(cached)" in r.stdout and "not downloaded" not in r.stdout
+
+
 def test_qc_table_fits_80_columns(run, tmp_path):
     a = tone(tmp_path / "a.wav", seconds=0.8, amp=0.99)  # cut-off tail etc: long hints
     r = run("qc", a, env={"COLUMNS": "80"})
