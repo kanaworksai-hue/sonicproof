@@ -364,7 +364,8 @@ def clicks(a: Audio) -> Check:
     )
 
 
-def bandwidth(a: Audio) -> Check:
+def mean_spectrum(a: Audio) -> tuple[np.ndarray, np.ndarray]:
+    """(frequencies in Hz, mean power) over the whole file, summed over channels."""
     nfft = 4096
     hop = nfft // 2
     max_frames = 512  # evenly spread over long files: the average spectrum barely moves, memory stays small
@@ -377,8 +378,12 @@ def bandwidth(a: Audio) -> Check:
         if len(frames) > max_frames:
             frames = frames[np.linspace(0, len(frames) - 1, max_frames).round().astype(int)]
         spec = spec + (np.abs(np.fft.rfft(frames * np.hanning(nfft), axis=1)) ** 2).mean(axis=0)
+    return np.fft.rfftfreq(nfft, 1 / a.sr), np.asarray(spec, dtype=np.float64)
+
+
+def bandwidth(a: Audio) -> Check:
+    freqs, spec = mean_spectrum(a)
     spec_db = 10 * np.log10(np.maximum(spec, 1e-20))
-    freqs = np.fft.rfftfreq(nfft, 1 / a.sr)
     above = np.where(spec_db > spec_db.max() - 70)[0]
     ceiling = float(freqs[above[-1]]) if len(above) else 0.0
     value = f"content up to {ceiling / 1000:.1f} kHz (sample rate {a.sr / 1000:g} kHz)"

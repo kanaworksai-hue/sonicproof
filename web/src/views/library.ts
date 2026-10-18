@@ -470,9 +470,12 @@ function keepReason(reason: string): string {
   if (getLang() !== "ja") return reason;
   const map: Record<string, string> = {
     lossless: "ロスレス",
+    "wider frequency range": "周波数帯域が広い",
     stereo: "ステレオ",
     "longest (not trimmed)": "最長（カットなし）",
     "not clipped": "クリップなし",
+    "higher level": "レベルが高い",
+    "same range, lower rate": "同じ帯域でサンプルレートが低い",
     "equal quality — shortest path": "品質は同等 — パスが最短",
   };
   return reason

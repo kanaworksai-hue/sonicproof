@@ -255,7 +255,8 @@ Two sounds can be close in meaning without being the same file — four seeds of
 `dedupe` therefore uses the embeddings only to find candidates, then compares the signals themselves
 (time-aligned spectral fingerprints), so it groups copies that differ in format, codec, level, sample rate,
 channel count or trimmed ends, and leaves different takes alone. In each group it keeps the best copy —
-lossless over lossy, not clipped, higher sample rate, more channels, longest — and says why.
+lossless over lossy, not clipped, more of the spectrum (a higher sample rate only counts when it really
+holds more — an upsampled copy does not), more channels, longest, not turned down — and says why.
 
 Sonicproof is a second opinion, not a judge: short, concrete prompts ("glass shattering") work better than long
 ones full of mixing notes, and very short transient sounds are the hardest to tell apart. Always listen

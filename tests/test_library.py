@@ -5,7 +5,7 @@ import os
 import numpy as np
 import pytest
 import soundfile as sf
-from scipy.signal import resample_poly
+from scipy.signal import resample, resample_poly
 
 from sonicproof.library import (
     MATCH,
@@ -84,11 +84,13 @@ def test_index_is_incremental_and_dedupe_groups_copies(tmp_path, monkeypatch):
     assert (st2.added, st2.removed, st2.unchanged) == (1, 1, 5)
 
     groups = {g.keep: g for g in find_duplicates(lib2)}
-    assert set(groups) == {"a.wav", "b.wav"}
-    rel = {m.path: m.relation for m in groups["a.wav"].members}
-    assert rel == {"a.wav": "keep", "copies/a_22k.wav": "same audio", "copies/a_trim.wav": "trimmed"}
+    # a.wav and a_22k.wav are both upsampled from the same 16 kHz source: same content, smaller file wins
+    assert set(groups) == {"copies/a_22k.wav", "b.wav"}
+    rel = {m.path: m.relation for m in groups["copies/a_22k.wav"].members}
+    assert rel == {"copies/a_22k.wav": "keep", "a.wav": "same audio", "copies/a_trim.wav": "trimmed"}
     assert {m.relation for m in groups["b.wav"].members} == {"keep", "identical"}
-    assert "longest" in groups["a.wav"].reason or "kHz" in groups["a.wav"].reason
+    assert "longest" in groups["copies/a_22k.wav"].reason
+    assert "same range, lower rate" in groups["copies/a_22k.wav"].reason
 
 
 def test_in_cache_index_lives_outside_the_folder(tmp_path, monkeypatch):
@@ -312,25 +314,60 @@ def test_different_takes_do_not_match():
         assert c < MATCH
 
 
-def test_keep_prefers_lossless_unclipped_higher_rate(tmp_path, monkeypatch):
+def test_keep_prefers_lossless_unclipped_and_not_upsampled(tmp_path, monkeypatch):
     import soundfile as _sf
 
     monkeypatch.setenv("SONICPROOF_CACHE", str(tmp_path / "cache"))
     root = tmp_path / "lib"
     a = _texture(3)
     _write(root / "a_16k.wav", a)
-    _write(root / "a_48k.wav", resample_poly(a, 3, 1).astype(np.float32), 48000)
+    _write(root / "a_48k.wav", resample_poly(a, 3, 1).astype(np.float32), 48000)  # upsampled: nothing new
     clipped = np.clip(resample_poly(a, 441, 160) * 8, -1, 1).astype(np.float32)
     _write(root / "a_44k_clipped.wav", clipped, 44100)
     _sf.write(root / "a_lossy.ogg", resample_poly(a, 3, 1).astype(np.float32), 48000)
     lib = Library(root)
     lib.update(_const_embed)
-    groups = find_duplicates(lib)
-    keep = {g.keep: g for g in groups}
-    assert "a_48k.wav" in keep
-    g = keep["a_48k.wav"]
-    assert "lossless" in g.reason and "kHz" in g.reason
-    assert {m.path for m in g.members} >= {"a_16k.wav", "a_48k.wav"}
+    (g,) = find_duplicates(lib)
+    assert g.keep == "a_16k.wav"
+    assert g.reason == "lossless, not clipped, same range, lower rate"
+    assert {m.path for m in g.members} == {"a_16k.wav", "a_48k.wav", "a_44k_clipped.wav", "a_lossy.ogg"}
+
+
+def _wideband(seed: int, sr: int = 44_100, seconds: float = 4.0) -> np.ndarray:
+    """Like ``_texture`` but with real content up to the Nyquist frequency of ``sr``."""
+    rng = np.random.default_rng(seed)
+    n = int(seconds * sr)
+    env = np.zeros(n, dtype=np.float32)
+    for start in rng.integers(0, n - sr // 4, 10):
+        env[start : start + sr // 8] = rng.uniform(0.3, 1.0)
+    return (0.2 * rng.standard_normal(n) * env).astype(np.float32)
+
+
+def test_keep_prefers_a_higher_rate_only_when_it_holds_more(tmp_path, monkeypatch):
+    monkeypatch.setenv("SONICPROOF_CACHE", str(tmp_path / "cache"))
+    root = tmp_path / "lib"
+    a = _wideband(7)
+    _write(root / "orig.wav", a, 44_100)
+    _write(root / "small_16k.wav", resample_poly(a, 160, 441).astype(np.float32), 16_000)
+    lib = Library(root)
+    lib.update(_const_embed)
+    (g,) = find_duplicates(lib)
+    assert g.keep == "orig.wav" and "wider frequency range" in g.reason
+
+
+def test_keep_ignores_a_quieter_upsampled_copy(tmp_path, monkeypatch):
+    # the original vs a copy turned down 6 dB and upsampled to 48 kHz: the upsampled copy holds nothing more
+    monkeypatch.setenv("SONICPROOF_CACHE", str(tmp_path / "cache"))
+    root = tmp_path / "lib"
+    a = _wideband(8)
+    _write(root / "orig.wav", a, 44_100)
+    quiet = 0.5 * resample(a, len(a) * 160 // 147)  # sharp, like ffmpeg / sox (resample_poly is soft)
+    _write(root / "orig_quieter_48k.flac", quiet.astype(np.float32), 48_000)
+    lib = Library(root)
+    lib.update(_const_embed)
+    (g,) = find_duplicates(lib)
+    assert g.keep == "orig.wav"
+    assert "higher level" in g.reason and "kHz" not in g.reason
 
 
 def test_transitive_groups_and_identical(tmp_path, monkeypatch):
