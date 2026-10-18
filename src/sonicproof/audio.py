@@ -164,11 +164,29 @@ def _ffprobe_channels(path: Path) -> int | None:
     return _ffprobe(path, "channels")
 
 
+# Formats libsndfile decodes without ffmpeg.
+_SNDFILE_NATIVE = {
+    ".wav",
+    ".wave",
+    ".flac",
+    ".ogg",
+    ".oga",
+    ".mp3",
+    ".aif",
+    ".aiff",
+    ".aifc",
+    ".caf",
+    ".w64",
+    ".rf64",
+}
+
+
 def load(path: str | Path) -> Audio:
     """Load a file at its native rate and channel count.
 
     Raises :class:`InputError` (not_found / is_dir / empty / unreadable / no_audio) for files it can't use and
-    :class:`SetupError` (needs_ffmpeg) when the format needs ffmpeg and it is missing. A valid file with zero
+    :class:`SetupError` (needs_ffmpeg) when the format needs ffmpeg and it is missing (a broken WAV / FLAC /
+    OGG / MP3 is ``unreadable`` either way). A valid file with zero
     frames loads fine (``qc`` reports it as ``file.empty``)."""
     path = Path(path)
     if not path.exists():
@@ -185,7 +203,14 @@ def load(path: str | Path) -> Audio:
         info = sf.info(str(path))
         data, sr = sf.read(str(path), dtype="float32", always_2d=True)
         return Audio(data=data, sr=sr, path=path, subtype=info.subtype)
-    except (sf.SoundFileError, RuntimeError, TypeError, ValueError):
+    except (sf.SoundFileError, RuntimeError, TypeError, ValueError) as e:
+        if path.suffix.lower() in _SNDFILE_NATIVE and shutil.which("ffmpeg") is None:
+            # a format libsndfile reads itself: it is the file that is broken, not a missing decoder
+            raise InputError(
+                f"Cannot read {path.name}: not a valid {path.suffix.lstrip('.').upper()} file.",
+                code="unreadable",
+                file=str(path),
+            ) from e
         data, sr = _ffmpeg_decode(path)
         return Audio(data=data, sr=sr, path=path)
 
