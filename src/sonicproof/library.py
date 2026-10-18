@@ -361,6 +361,12 @@ FP_SECONDS = 120.0  # only the first two minutes are compared
 FP_FLOOR_DB = 70.0
 _N_FFT = 512
 _N_MELS = 32
+# Keep choice: a copy at a higher sample rate only holds more when it has real content above the lower
+# rate's Nyquist (with a guard band for the resampler's roll-off). Copies upsampled by ffmpeg, sox or a DAW
+# leave -50 dB and less there (filter skirts, images); real recordings -35 dB and more.
+EXTRA_GUARD_HZ = 1000.0
+EXTRA_RANGE_DB = -45.0
+LEVEL_TOLERANCE_LU = 1.0  # codecs and resamplers move loudness a few tenths; a turn-down is more
 
 
 def _mel_filterbank() -> np.ndarray:
@@ -463,23 +469,78 @@ class DupGroup:
         return asdict(self)
 
 
-def _quality_key(e: Entry) -> tuple:
-    clipped = e.peak_db >= -0.01
-    return (e.lossless, not clipped, e.sample_rate, e.channels, round(e.duration, 1), -len(e.path))
+def _clipped(e: Entry) -> bool:
+    return e.peak_db >= -0.01
 
 
-def _keep_reason(keep: Entry, others: list[Entry]) -> str:
+def _same_level(e: Entry, top_lufs: float | None) -> bool:
+    """Not turned down: loudness (unlike sample peaks, which resampling moves) within the tolerance."""
+    return (
+        top_lufs is not None
+        and not _clipped(e)
+        and e.lufs is not None
+        and e.lufs >= top_lufs - LEVEL_TOLERANCE_LU
+    )
+
+
+def _reach(entries: list[Entry], spectra: list[tuple[np.ndarray, np.ndarray] | None]) -> list[int]:
+    """For each copy, how many of the group's lower Nyquist frequencies it really has content above."""
+    nyqs = sorted({e.sample_rate / 2 for e in entries})
+    out = []
+    for e, sp in zip(entries, spectra, strict=True):
+        n = 0
+        if sp is not None:
+            freqs, power = sp
+            total = float(power.sum())
+            for q in nyqs:
+                f = q + EXTRA_GUARD_HZ
+                if f >= e.sample_rate / 2 or total <= 0:
+                    break
+                n += 10 * np.log10(max(float(power[freqs > f].sum()), 1e-30) / total) > EXTRA_RANGE_DB
+        out.append(n)
+    return out
+
+
+def _pick_keep(entries: list[Entry], reach: list[int]) -> int:
+    """Index of the copy to keep. A higher sample rate only counts when it holds more of the spectrum
+    (``reach``): after that, channels and length, the copy that was not turned down wins, then the lower
+    sample rate (same content, smaller file), then the shortest path."""
+    louds = [e.lufs for e in entries if e.lufs is not None and not _clipped(e)]
+    top_lufs = max(louds, default=None)
+
+    def key(i: int) -> tuple:
+        e = entries[i]
+        return (
+            e.lossless,
+            not _clipped(e),
+            reach[i],
+            e.channels,
+            round(e.duration, 1),
+            _same_level(e, top_lufs),
+            -e.sample_rate,
+            -len(e.path),
+        )
+
+    return max(range(len(entries)), key=key)
+
+
+def _keep_reason(keep: Entry, keep_reach: int, others: list[tuple[Entry, int]]) -> str:
     bits = []
-    if keep.lossless and not all(o.lossless for o in others):
+    if keep.lossless and not all(o.lossless for o, _ in others):
         bits.append("lossless")
-    if any(o.sample_rate < keep.sample_rate for o in others):
-        bits.append(f"{keep.sample_rate / 1000:g} kHz")
-    if any(o.channels < keep.channels for o in others):
+    if any(r < keep_reach for _, r in others):
+        bits.append("wider frequency range")
+    if any(o.channels < keep.channels for o, _ in others):
         bits.append("stereo" if keep.channels == 2 else f"{keep.channels} ch")
-    if any(o.duration < keep.duration - 0.05 for o in others):
+    if any(o.duration < keep.duration - 0.05 for o, _ in others):
         bits.append("longest (not trimmed)")
-    if any(o.peak_db >= -0.01 for o in others) and keep.peak_db < -0.01:
+    if any(_clipped(o) for o, _ in others) and not _clipped(keep):
         bits.append("not clipped")
+    if not _clipped(keep) and keep.lufs is not None:
+        if any(not _clipped(o) and not _same_level(o, keep.lufs) for o, _ in others):
+            bits.append("higher level")
+    if any(o.sample_rate > keep.sample_rate and r == keep_reach for o, r in others):
+        bits.append("same range, lower rate")
     return ", ".join(bits) or "equal quality — shortest path"
 
 
@@ -531,6 +592,21 @@ def find_duplicates(
             fps[i, tail] = x.astype(np.float32)
         return fps[i, tail]
 
+    def spectrum(i: int) -> tuple[np.ndarray, np.ndarray] | None:
+        """Mean power spectrum at the file's own rate (only measured for files that have a duplicate)."""
+        from .qc import mean_spectrum
+
+        d = entries[i].digest
+        power = cache.load_array("spectrum", d)
+        if power is None:
+            try:
+                _, power = mean_spectrum(load(lib.abspath(entries[i])))
+            except Exception:  # gone or unreadable since indexing: no credit for range
+                return None
+            cache.save_array(power.astype(np.float32), "spectrum", d)
+        power = power.astype(np.float64)
+        return np.fft.rfftfreq(2 * (len(power) - 1), 1 / entries[i].sample_rate), power
+
     def whole_file_matches(i: int, j: int) -> bool:
         """Past the fingerprinted first two minutes: do the last two minutes match as well?"""
         if max(entries[i].duration, entries[j].duration) <= FP_SECONDS + 0.5:
@@ -560,7 +636,9 @@ def find_duplicates(
     for idx in groups.values():
         if len(idx) < 2:
             continue
-        keep = max(idx, key=lambda i: _quality_key(entries[i]))
+        reach = _reach([entries[i] for i in idx], [spectrum(i) for i in idx])
+        keep = idx[_pick_keep([entries[i] for i in idx], reach)]
+        reach_of = dict(zip(idx, reach, strict=True))
         others = [i for i in idx if i != keep]
         members = [_member(entries[keep], "keep", 1.0, 1.0)]
         for i in sorted(others, key=lambda i: entries[i].path):
@@ -575,7 +653,9 @@ def find_duplicates(
         out.append(
             DupGroup(
                 keep=entries[keep].path,
-                reason=_keep_reason(entries[keep], [entries[i] for i in others]),
+                reason=_keep_reason(
+                    entries[keep], reach_of[keep], [(entries[i], reach_of[i]) for i in others]
+                ),
                 members=members,
                 reclaimable_bytes=sum(m.size for m in members if m.relation in REDUNDANT),
             )
