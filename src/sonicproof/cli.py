@@ -864,14 +864,18 @@ def doctor(load: bool = typer.Option(False, "--load", help="Also load the model 
     if MODEL_ID:
         from .model import DOWNLOAD_SIZE, hub_cache_dir, model_cached, prefer_offline
 
+        def model_row():
+            cached = model_cached()
+            return (
+                "pass" if cached else "warn",
+                "Model",
+                f"{MODEL_ID} ({'cached' if cached else 'not downloaded'})",
+                "" if cached else f"`sp doctor --load` downloads it ({DOWNLOAD_SIZE}, no account needed).",
+            )
+
         prefer_offline()
-        cached = model_cached()
-        row(
-            True if cached else None,
-            "Model",
-            f"{MODEL_ID} ({'cached' if cached else 'not downloaded'})",
-            "" if cached else f"`sp doctor --load` downloads it ({DOWNLOAD_SIZE}, no account needed).",
-        )
+        rows.append(model_row())
+        model_at = len(rows) - 1
         row(True, "HF cache", str(hub_cache_dir()))
     from .cache import cache_dir
 
@@ -888,6 +892,7 @@ def doctor(load: bool = typer.Option(False, "--load", help="Also load the model 
             e = j.embedder.embed_audio([tone])
             ok = bool(np.isfinite(e).all())
             row(ok, "Inference", f"{time.time() - t0:.1f} s load + embed" if ok else "NaN in output")
+            rows[model_at] = model_row()  # --load may just have downloaded it
         except Exception as ex:
             if _debug:
                 raise
