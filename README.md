@@ -52,7 +52,7 @@ uv tool install "sonicproof[model]"        # or: pip install "sonicproof[model]"
 sonicproof doctor --load                   # first run downloads the model once (~1.5 GB)
 ```
 
-Until the first release, install from source: `git clone https://github.com/kanaworksai-hue/sonicproof`, run
+To run the latest code from `main` instead: `git clone https://github.com/kanaworksai-hue/sonicproof`, run
 `uv sync --extra model` inside it,
 and run commands with `uv run sp …` (or `uv run --project /path/to/sonicproof sp …` from any other folder).
 
