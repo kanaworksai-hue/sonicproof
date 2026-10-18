@@ -12,6 +12,7 @@ from .audio import _CHUNK, SILENCE_DB, Audio, frame_rms_db
 
 PASS, WARN, FAIL, INFO = "pass", "warn", "fail", "info"
 MIN_LOUDNESS_S = 0.4  # one BS.1770 gating block
+SEAM_RATIO = 4.0  # a loop seam clicks when its step is this many times the RMS step around it
 
 
 @dataclass
@@ -448,15 +449,25 @@ def stereo(a: Audio) -> Check:
 
 def loop_seam(a: Audio) -> Check:
     x = a.data
-    jump = float(np.abs(x[-1] - x[0]).max())
+    jumps = np.abs(x[-1] - x[0])
+    # The wrap-around step only clicks when it stands out from the usual sample-to-sample motion on both
+    # sides of the seam: in dense noise (rain, wind) a cross-faded seam steps as far as any other sample.
+    w = max(1, min(max(8, int(a.sr * 0.01)), len(x) // 4))
+    steps = np.concatenate([np.diff(x[-w - 1 :], axis=0), np.diff(x[: w + 1], axis=0)])
+    local = np.zeros(a.channels)
+    if len(steps):
+        local = np.sqrt(np.mean(np.square(steps, dtype=np.float64), axis=0))
+    ratios = jumps / np.maximum(local, 1e-9)
+    stands_out = ratios > SEAM_RATIO
+    jump, ratio = float(jumps.max()), float(ratios.max())
     # 300 ms windows: 50 ms ones land between crackles of sparse textures (fire, rain) and report fake gaps
     n = max(1, min(int(a.sr * 0.3), len(x) // 4))
     head = db(np.sqrt(np.mean(x[:n] ** 2)))
     tail = db(np.sqrt(np.mean(x[-n:] ** 2)))
     level_gap = abs(head - tail)
     value = f"jump {jump:.3f}, level gap {level_gap:.1f} dB"
-    d = {"jump": round(jump, 3), "gap_db": round(float(level_gap), 1)}
-    if jump > 0.1:
+    d = {"jump": round(jump, 3), "gap_db": round(float(level_gap), 1), "ratio": round(min(ratio, 1e3), 1)}
+    if (stands_out & (jumps > 0.1)).any():
         return Check(
             "loop",
             "Loop seam",
@@ -466,7 +477,7 @@ def loop_seam(a: Audio) -> Check:
             "loop.click",
             d,
         )
-    if level_gap > 6 or jump > 0.03:
+    if level_gap > 6 or (stands_out & (jumps > 0.03)).any():
         return Check(
             "loop",
             "Loop seam",
