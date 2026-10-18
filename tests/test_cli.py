@@ -147,6 +147,7 @@ def test_skill_install_and_show(run, tmp_path, monkeypatch):
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("USERPROFILE", str(home))  # Path.home() on Windows
     dest = home / ".claude" / "skills" / "sonicproof" / "SKILL.md"
     assert run("skill", "install").exit_code == 0 and dest.read_text(encoding="utf-8") == cli._skill_text()
     assert run("skill", "install").exit_code == 0  # already up to date

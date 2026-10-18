@@ -83,6 +83,7 @@ def test_bad_file_in_a_qc_batch_is_a_record(call, tmp_path):
 
 def test_tilde_is_expanded(call, tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))  # Path.home() on Windows
     tone(tmp_path / "a.wav")
     r = call("qc", files=["~/a.wav"])
     assert not r.is_error and r.structured_content["result"][0]["status"] != "error"

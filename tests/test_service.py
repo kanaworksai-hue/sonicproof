@@ -113,6 +113,7 @@ def test_qc_and_rank_keep_the_batch_when_one_file_is_bad(tmp_path):
 
 def test_engine_expands_home(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))  # Path.home() on Windows
     tone(tmp_path / "x.wav")
     assert FakeEngine().qc(["~/x.wav"])[0]["status"] != "error"
     assert FakeEngine().check("~/x.wav", "a beep")["verdict"]

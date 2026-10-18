@@ -261,6 +261,7 @@ def test_check_root(tmp_path, monkeypatch):
     (tmp_path / "lib").mkdir()
     assert check_root(tmp_path / "lib") == (tmp_path / "lib").resolve()
     monkeypatch.setenv("HOME", str(tmp_path / "lib"))  # "~" below is this folder: home itself is refused
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "lib"))  # Path.home() on Windows
     cases = {
         tmp_path / "nope": "not_found",
         tmp_path / "lib" / ".." / "lib" / "x.wav": "not_found",
@@ -272,7 +273,7 @@ def test_check_root(tmp_path, monkeypatch):
     _write(tmp_path / "f.wav", _texture(1, 1.0))
     cases[tmp_path / "f.wav"] = "bad_value"
     for p, code in cases.items():
-        if str(p) == "/etc" and not Path("/etc").exists():
+        if str(p) in ("/usr", "/etc") and not Path(p).exists():  # Windows
             continue
         with pytest.raises(InputError) as e:
             check_root(p)

@@ -250,6 +250,9 @@ def test_concurrent_saves_never_corrupt_the_state(client, tmp_path):
             json.loads(state.read_text(encoding="utf-8"))
         except ValueError:
             bad_reads += 1
+        except PermissionError:  # Windows: the file is being replaced right now
+            pass
+        time.sleep(0.001)
     for t in threads:
         t.join()
     assert not errors and bad_reads == 0

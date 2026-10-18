@@ -26,6 +26,7 @@ def clean_env(monkeypatch):
 
 def test_hub_cache_dir_resolution_order(tmp_path, clean_env):
     clean_env.setenv("HOME", str(tmp_path / "home"))
+    clean_env.setenv("USERPROFILE", str(tmp_path / "home"))  # Path.home() on Windows
     assert model.hub_cache_dir() == tmp_path / "home" / ".cache" / "huggingface" / "hub"
     clean_env.setenv("XDG_CACHE_HOME", str(tmp_path / "xdg"))
     assert model.hub_cache_dir() == tmp_path / "xdg" / "huggingface" / "hub"
