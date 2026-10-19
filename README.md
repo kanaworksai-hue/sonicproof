@@ -1,4 +1,23 @@
-# Sonicproof
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/kanaworksai-hue/sonicproof/main/docs/assets/banner-en.jpg" alt="Sonicproof: check, rank and QC AI-generated sound" width="820">
+
+<p>
+  <a href="https://github.com/kanaworksai-hue/sonicproof/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-6b4dff?style=flat-square"></a>
+  <a href="https://pypi.org/project/sonicproof/"><img alt="PyPI" src="https://img.shields.io/pypi/v/sonicproof?style=flat-square&logo=pypi&logoColor=white&color=3775a9"></a>
+  <img alt="Python 3.11 to 3.13" src="https://img.shields.io/badge/python-3.11–3.13-3776ab?style=flat-square&logo=python&logoColor=white">
+  <img alt="macOS, Linux, Windows" src="https://img.shields.io/badge/platform-macOS_·_Linux_·_Windows-111?style=flat-square">
+  <a href="#use-it-from-your-ai-agent"><img alt="MCP server" src="https://img.shields.io/badge/MCP-server-19b8d6?style=flat-square"></a>
+  <a href="https://huggingface.co/google/embeddinggemma-2"><img alt="Model: EmbeddingGemma 2" src="https://img.shields.io/badge/model-EmbeddingGemma_2-ff9d00?style=flat-square&logo=huggingface&logoColor=white"></a>
+  <a href="https://github.com/kanaworksai-hue/sonicproof/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/kanaworksai-hue/sonicproof/ci.yml?branch=main&style=flat-square&label=CI"></a>
+  <a href="https://github.com/kanaworksai-hue/sonicproof/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/kanaworksai-hue/sonicproof?style=flat-square&logo=github&label=stars&color=f5c518"></a>
+</p>
+
+<p><a href="https://github.com/kanaworksai-hue"><img src="https://raw.githubusercontent.com/kanaworksai-hue/sonicproof/main/docs/brand/kanaworks-mark.png" height="22" alt="" align="absmiddle"></a>&nbsp;<a href="https://github.com/kanaworksai-hue"><b>A KanaWorks_AI project</b></a></p>
+
+[Install](#install) · [Use](#use) · [Workbench](#workbench) · [AI agents](#use-it-from-your-ai-agent) · [Reading a score](#how-to-read-a-score) · [⭐ Star](#like-it-star-it)
+
+</div>
 
 **Does your AI-generated sound match what you asked for?**
 
@@ -299,3 +318,18 @@ Sonicproof is licensed under the [MIT License](https://github.com/kanaworksai-hu
 EmbeddingGemma 2 from Hugging Face on first run — the model is not bundled. The model is released by Google
 under Apache 2.0, and its model card asks that deployments follow the
 [Gemma Prohibited Use Policy](https://ai.google.dev/gemma/prohibited_use_policy).
+
+The KanaWorks_AI name, logo and the Kana character are © KanaWorks_AI and are **not** covered by the MIT
+license. See [docs/brand](https://github.com/kanaworksai-hue/sonicproof/blob/main/docs/brand/README.md).
+
+## Like it? Star it
+
+<div align="center">
+
+<a href="https://x.com/KanaWorks_AI"><img src="https://raw.githubusercontent.com/kanaworksai-hue/sonicproof/main/docs/brand/kana-wave.png" width="150" alt="Kana, the KanaWorks_AI mascot, waving"></a>
+
+<p><b>Made with ♥ by <a href="https://x.com/KanaWorks_AI">KanaWorks_AI</a></b></p>
+
+<p><sub>If Sonicproof saves you a listen, a ⭐ helps others find it. More projects: <a href="https://github.com/kanaworksai-hue">github.com/kanaworksai-hue</a></sub></p>
+
+</div>
