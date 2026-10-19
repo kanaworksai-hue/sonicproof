@@ -1,6 +1,7 @@
 name: Release
 
 # Push a tag like v0.1.0 to build and publish to PyPI (Trusted Publishing, no API token).
+# Write the release notes first in .github/release-notes/<tag>.md; the release fails without them.
 
 on:
   push:
@@ -19,6 +20,8 @@ jobs:
         run: |
           version=$(uv version --short)
           test "v$version" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME != version $version"; exit 1; }
+      - name: Release notes exist
+        run: test -s ".github/release-notes/$GITHUB_REF_NAME.md" || { echo "missing .github/release-notes/$GITHUB_REF_NAME.md"; exit 1; }
       - run: uv build
       - run: uvx twine check dist/*
       - uses: actions/upload-artifact@v4
@@ -47,10 +50,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
-      - run: gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
+      - run: gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --notes-file ".github/release-notes/$GITHUB_REF_NAME.md"
         env:
           GH_TOKEN: ${{ github.token }}
