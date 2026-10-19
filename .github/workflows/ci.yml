@@ -32,6 +32,46 @@ jobs:
       - run: uv run ruff format --check src tests examples
       - run: uv run pytest -q
 
+  model:
+    name: model + ffmpeg (ubuntu, CPU)
+    runs-on: ubuntu-latest
+    env:
+      SONICPROOF_DEVICE: cpu
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Install ffmpeg
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends ffmpeg
+      # CPU-only PyTorch: the locked Linux build pulls ~3 GB of CUDA libraries a runner cannot use.
+      # Steps after this use `uv run --no-sync` so uv does not swap the locked build back in.
+      - name: Install with the model extra (CPU PyTorch)
+        run: |
+          uv sync --group dev
+          uv pip install --torch-backend cpu "torch>=2.6" "sentence-transformers[image]>=6.1" "transformers>=5,<6"
+      - name: Model revision
+        id: model
+        run: |
+          sha=$(curl -sf https://huggingface.co/api/models/google/embeddinggemma-2/revision/main | jq -r .sha || true)
+          echo "sha=${sha:-unknown}" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: hf-embeddinggemma-2-${{ steps.model.outputs.sha }}
+          restore-keys: hf-embeddinggemma-2-
+      - name: Download and load the model
+        run: uv run --no-sync sp doctor --load
+      - name: Tests (the model and ffmpeg tests must not skip)
+        shell: bash
+        run: |
+          uv run --no-sync pytest -q -rs | tee pytest.log
+          if grep -E "^SKIPPED.*(not downloaded|needs ffmpeg|ffmpeg not installed|'torch')" pytest.log; then
+            echo "::error::model or ffmpeg tests were skipped"
+            exit 1
+          fi
+
   web:
     name: web bundle is up to date
     runs-on: ubuntu-latest
