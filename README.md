@@ -160,7 +160,11 @@ value out of range) are the exception: they print the usual usage message and ex
 
 ```bash
 sonicproof serve                            # opens http://localhost:7788
+sonicproof serve --port 8800 --no-open      # another port, no browser tab
 ```
+
+The address is printed in the terminal (`http://localhost:<port>`, 7788 unless you pass `--port`); open it
+yourself if you used `--no-open` or no tab appeared. `Ctrl+C` stops the server.
 
 - **Inbox** — drop audio files or whole folders. Prompts are read from Stable Audio `.json` sidecars (or type
   your own). Takes of the same prompt are grouped, ranked, and the best one is marked **Use this one**. When

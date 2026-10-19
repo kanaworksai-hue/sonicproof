@@ -152,7 +152,11 @@ sp dedupe ~/SFX                             # 完全重复和近似重复（不�
 
 ```bash
 sonicproof serve                            # 打开 http://localhost:7788
+sonicproof serve --port 8800 --no-open      # 换一个端口，不自动打开浏览器
 ```
+
+地址会打印在终端里（`http://localhost:<端口>`，不加 `--port` 时是 7788）；用了 `--no-open` 或浏览器没有自动打开时，
+自己在浏览器里打开这个地址即可。按 `Ctrl+C` 停止服务。
 
 - **Inbox（收件箱）**——拖入音频文件或整个文件夹。提示词从 Stable Audio 的 `.json` sidecar 文件里读（也可以自己输入）。
   同一提示词的多个 take 自动分组、排名，最好的一条标上 **Use this one**。如果一组里没有一条听起来对的，
