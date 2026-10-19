@@ -295,7 +295,7 @@ See [CONTRIBUTING.md](https://github.com/kanaworksai-hue/sonicproof/blob/main/CO
 
 ## License
 
-Sonicproof is licensed under the [Apache License 2.0](https://github.com/kanaworksai-hue/sonicproof/blob/main/LICENSE) (see also [NOTICE](https://github.com/kanaworksai-hue/sonicproof/blob/main/NOTICE)). It downloads
+Sonicproof is licensed under the [MIT License](https://github.com/kanaworksai-hue/sonicproof/blob/main/LICENSE) (see also [NOTICE](https://github.com/kanaworksai-hue/sonicproof/blob/main/NOTICE)). It downloads
 EmbeddingGemma 2 from Hugging Face on first run — the model is not bundled. The model is released by Google
 under Apache 2.0, and its model card asks that deployments follow the
 [Gemma Prohibited Use Policy](https://ai.google.dev/gemma/prohibited_use_policy).

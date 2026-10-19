@@ -64,4 +64,4 @@ CI rebuilds the UI and fails if the committed bundle is out of date. User-facing
 - `--json` output and MCP tool results are an interface for scripts and agents: add fields rather than
   renaming or removing them, and call out any breaking change in the pull request.
 - Docs, comments and user-facing text are in English (the workbench is also translated to Japanese).
-- By contributing you agree that your contribution is licensed under the [Apache License 2.0](https://github.com/kanaworksai-hue/sonicproof/blob/main/LICENSE).
+- By contributing you agree that your contribution is licensed under the [MIT License](https://github.com/kanaworksai-hue/sonicproof/blob/main/LICENSE).
