@@ -15,6 +15,8 @@
 
 <p><a href="https://github.com/kanaworksai-hue"><img src="https://raw.githubusercontent.com/kanaworksai-hue/sonicproof/main/docs/brand/kanaworks-mark.png" height="22" alt="" align="absmiddle"></a>&nbsp;<a href="https://github.com/kanaworksai-hue"><b>A KanaWorks_AI project</b></a></p>
 
+<p><b>English</b> · <a href="https://github.com/kanaworksai-hue/sonicproof/blob/main/README.zh-CN.md">简体中文</a> · <a href="https://github.com/kanaworksai-hue/sonicproof/blob/main/README.ja.md">日本語</a></p>
+
 [Install](#install) · [Use](#use) · [Workbench](#workbench) · [AI agents](#use-it-from-your-ai-agent) · [Reading a score](#how-to-read-a-score) · [⭐ Star](#like-it-star-it)
 
 </div>
@@ -26,54 +28,48 @@ friends. It listens with one multilingual model, Google's
 [EmbeddingGemma 2](https://huggingface.co/google/embeddinggemma-2), which puts text, sound, images and video in
 one shared space:
 
-- **check** — does this clip sound like the prompt? Prompts can be English, 中文, 日本語 or any other language.
+- **check** — does this clip sound like the prompt? Prompts can be in any language.
 - **rank** — you generated four seeds; which one should you keep?
 - **qc** — is it technically clean? Loudness, true peak, clipping, DC, silence, cut-off tails, clicks, phase,
   loop seams — with a one-line fix for every problem.
 - **fit** — does this sound suit the picture? A frame, a piece of concept art, a video clip, or a video's own
   soundtrack.
-- **search** — find sounds in your own library by words (any language), by example, or by picture.
+- **search** — find sounds in your own library by words, by example, or by picture.
 - **dedupe** — find the re-encoded, re-levelled and trimmed copies cluttering your library, and which one to keep.
 
-Everything runs on your machine. No uploads, no API keys. Use it three ways:
-
-- **Workbench** — `sonicproof serve` opens a local web app: drop files in, see waveforms, spectrograms,
-  scores and one-line fixes. English and 日本語.
-- **Agents** — an MCP server and an agent skill, so Claude Code, Codex and friends can listen to what they
-  generate. See [Use it from your AI agent](#use-it-from-your-ai-agent).
-- **CLI / Python** — every analysis command has `--json`.
+Everything runs on your machine — no uploads, no API keys — and you can use it from a local
+[workbench](#workbench) in your browser, from [your AI agent](#use-it-from-your-ai-agent) (MCP server + agent
+skill), or from the command line and [Python](#python).
 
 ![The Sonicproof workbench: generated takes grouped by prompt, the best take of each group marked “Use this one”](https://raw.githubusercontent.com/kanaworksai-hue/sonicproof/main/docs/images/workbench.jpg)
 
 ```text
-$ sp check dog_bark.wav "狗在叫"          # output trimmed: 3 of the 5 "Heard as" lines
-╭─ dog_bark.wav ─────────────────────────────────────────────────────╮
-│                                                                    │
-│   STRONG   +2.97σ  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━                    │
-│  clearly sounds like the prompt                                    │
-│                                                                    │
-│    prompt  “狗在叫”                                                │
-│   ranking  #2 of 438 descriptions for this clip                    │
-│  evidence  cos 0.736 · clip-side +3.19σ · prompt-side +2.74σ       │
-│                                                                    │
-│  Heard as                                                          │
-│  +3.24σ  a dog barking  ✓  animals                                 │
-│  +2.85σ  a dog whining  ✓  animals                                 │
-│  +2.69σ  a dog growling  ✓  animals                                │
-│                                                                    │
-╰────────────────────────────────────────────────────────────────────╯
+$ sp check dog_bark.wav "a dog barking"
+╭─ dog_bark.wav ───────────────────────────────────────────────────────╮
+│                                                                      │
+│   STRONG   +3.79σ  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━                      │
+│  clearly sounds like the prompt                                      │
+│                                                                      │
+│    prompt  “a dog barking”                                           │
+│   ranking  #1 of 438 descriptions for this clip                      │
+│  evidence  cos 0.765 · clip-side +4.22σ · prompt-side +3.36σ         │
+│                                                                      │
+│  Heard as                                                            │
+│  +3.79σ  a dog barking  ✓  animals                                   │
+│  +3.37σ  a small dog yapping  animals                                │
+│  +3.10σ  a dog whining  ✓  animals                                   │
+│  +3.03σ  a dog growling  ✓  animals                                  │
+│  +2.26σ  a duck quacking  animals                                    │
+│                                                                      │
+╰──────────────────────────────────────────────────────────────────────╯
 ```
 
 ## Install
 
 ```bash
 uv tool install "sonicproof[model]"        # or: pip install "sonicproof[model]"
-sonicproof doctor --load                   # first run downloads the model once (~1.5 GB)
+sonicproof doctor --load                   # downloads the model once and checks the setup
 ```
-
-To run the latest code from `main` instead: `git clone https://github.com/kanaworksai-hue/sonicproof`, run
-`uv sync --extra model` inside it,
-and run commands with `uv run sp …` (or `uv run --project /path/to/sonicproof sp …` from any other folder).
 
 - **Python 3.11+.** Apple Silicon (MPS), CUDA and CPU all work. `sp` is a short alias for `sonicproof`.
 - **The model** — [EmbeddingGemma 2](https://huggingface.co/google/embeddinggemma-2), about 1.5 GB — is
@@ -82,14 +78,16 @@ and run commands with `uv run sp …` (or `uv run --project /path/to/sonicproof 
   `fit` / `search`. WAV, FLAC, OGG and MP3 work without it.
 - **Windows + NVIDIA GPU:** the PyPI build of PyTorch for Windows is CPU-only. Install PyTorch with CUDA first,
   following [pytorch.org](https://pytorch.org/get-started/locally/), then install Sonicproof.
-- `qc` needs no model at all: `pip install sonicproof` (without `[model]`) is enough for technical checks.
+- **Technical checks only?** `qc` needs no model: `pip install sonicproof` (without `[model]`) is enough.
+- **Latest `main`:** `git clone https://github.com/kanaworksai-hue/sonicproof`, run `uv sync --extra model`
+  inside it, and run commands with `uv run sp …` (or `uv run --project /path/to/sonicproof sp …` from any other
+  folder).
 
 ## Use
 
 ```bash
 # Prompt adherence. Omit the prompt to read it from a Stable Audio .json sidecar.
 sp check explosion.wav "a huge explosion with debris"
-sp check door_v2.wav "木の扉がきしみながら開く"
 sp check thunder.wav
 
 # Pick the best take
@@ -103,18 +101,20 @@ sp qc ambience_loop.wav --loop --target-lufs -16
 sp report footsteps.wav "footsteps on gravel"
 sp report footsteps.wav "footsteps on gravel" --strict
 
-# Does the sound suit the picture? Words about the scene are optional, any language.
+# Does the sound suit the picture? Words about the scene are optional.
 sp fit sizzle.wav --image kitchen.png
-sp fit rumble.wav --video storm.mp4 "暴风雨夜，雷声"
+sp fit rumble.wav --video storm.mp4 "a stormy night with thunder"
 sp fit trailer.mp4                          # a video's own soundtrack against its own picture
 ```
+
+Prompts, scene notes and search queries don't have to be English — the model is multilingual, so Japanese,
+Chinese and many other languages work as they are.
 
 ### Your sound library
 
 ```bash
 sp index ~/SFX                              # once; re-runs only read new or changed files
 sp search "rain on a tin roof" --in ~/SFX
-sp search "木の床を歩く足音" --in ~/SFX
 sp search --like take_03.wav --in ~/SFX     # sounds like this one
 sp search --image frame.png --in ~/SFX      # sounds that suit this picture
 sp dedupe ~/SFX                             # duplicates and near-duplicates (nothing is deleted)
@@ -124,11 +124,11 @@ The library folder is always given explicitly: `index DIR`, `search … --in DIR
 folder or a drive root are refused — point at the folder that holds your sounds).
 The index lives in `~/SFX/.sonicproof/` (use `--in-cache` to keep it in `~/.cache/sonicproof` instead, e.g. for
 read-only folders). `search` and `dedupe` bring it up to date on the fly, so `sp index` is optional.
-The workbench always keeps its indexes in the cache, so opening a folder there never writes into it.
 
 ### Scripting: `--json` and exit codes
 
-The analysis commands — `check`, `rank`, `qc`, `report`, `fit`, `index`, `search`, `dedupe` — take `--json` for scripts and agents (`doctor`, `serve`, `mcp` and `skill` are for people). `qc --json` always prints an array, one record per file,
+The analysis commands — `check`, `rank`, `qc`, `report`, `fit`, `index`, `search`, `dedupe` — take `--json`
+(`doctor`, `serve`, `mcp` and `skill` are for people). `qc --json` always prints an array, one record per file,
 even for a single file. A file that can't be read gets `"status": "error"` in that array and the rest are
 still checked.
 
@@ -142,10 +142,6 @@ still checked.
 With `--json`, errors are JSON too — `{"error": {"code": "not_found", "message": "…", "file": "…"}}` on stdout
 — so a script never has to parse a traceback. Set `SONICPROOF_DEBUG=1` to see the full traceback.
 
-Silent clips (nothing above −60 dBFS) are never scored as a match: `check`, `rank`, `fit` and `search` give
-them `"verdict": "miss"` with `"note": "silent"` and rank them last. Short one-shots such as UI clicks are
-judged normally.
-
 ## Workbench
 
 ```bash
@@ -153,32 +149,34 @@ sonicproof serve                            # opens http://localhost:7788
 ```
 
 - **Inbox** — drop audio files or whole folders. Prompts are read from Stable Audio `.json` sidecars (or type
-  your own, in any language). Takes of the same prompt are grouped, ranked, and the best one is marked
-  **Use this one**. When nothing in a group sounds right, it says so and suggests a wording to try next.
+  your own). Takes of the same prompt are grouped, ranked, and the best one is marked **Use this one**. When
+  nothing in a group sounds right, it says so and suggests a wording to try next.
   Each card shows the waveform over a spectrogram, a plain verdict (◎ Very close · ○ Close · △ Somewhat ·
   ✕ Not a match), a 0–100 match bar and a dot per technical check; technical findings are spelled out in
   plain words with the fix.
 - **Library** — choose a folder, index it (with progress), then search by words, by dropping a sound, or by
-  picture. The **Duplicates** tab lists copies and which one to keep (nothing is deleted).
+  picture. The **Duplicates** tab lists copies and which one to keep (nothing is deleted). Indexes made here
+  are kept in the cache, so opening a folder never writes into it.
 - **Picture** — drop an image or a video: see what it shows in sound words, score your Inbox sounds against
   it, find matching sounds in your library, or judge a video's own soundtrack.
 
-The raw numbers (σ scores, cosines, every measurement) are one click away under **Details**, or everywhere
-with **Settings → Pro mode**. Settings also shows how much the cache uses and clears it; removing files from the
+The raw numbers behind each verdict are one click away under **Details**, or shown everywhere with
+**Settings → Pro mode**. Settings also shows how much the cache uses and clears it; removing files from the
 Inbox deletes the copies made when they were dropped (your originals are never touched).
 
-The language follows your browser and can be switched (English / 日本語). Sound only plays when you press play.
-The server listens on `localhost` only and refuses requests from other sites.
+The interface is in English and Japanese; it follows your browser and can be switched. Sound only plays when
+you press play. The server listens on `localhost` only and refuses requests from other sites.
 
 ![The workbench in Japanese](https://raw.githubusercontent.com/kanaworksai-hue/sonicproof/main/docs/images/workbench-ja.jpg)
 
 ## Use it from your AI agent
 
-The quickest way: give your agent the link to this repository (or the skill below) and ask it to check the
-sounds it generates. Everything it needs is in this section.
+The quickest way: give your agent the link to this repository and ask it to check the sounds it generates.
+Everything it needs is in this section.
 
-**1. Download the model once, in a terminal.** The MCP server never starts a 1.5 GB download inside a tool
-call (it would look like a hang); it asks you to run this instead:
+**1. Install and download the model once, in a terminal** ([Install](#install)). The MCP server never starts
+the 1.5 GB download inside a tool call — it would look like a hang — so make sure `sonicproof doctor --load`
+has run once. Without installing anything:
 
 ```bash
 uvx --from "sonicproof[model]" sonicproof doctor --load
@@ -210,18 +208,10 @@ Other clients take the same command in their JSON config (write out the absolute
   is usually not yours.
 - **HTTP mode** listens on `127.0.0.1` only and refuses requests from web pages on other sites, but it has no
   authentication: any process on your machine can call it. Use stdio when that matters.
-- **Before the PyPI release**, run from a clone: `uv sync --extra model` inside it, then use
-  `uv run --project /absolute/path/to/sonicproof --extra model sonicproof mcp` as the server command
-  (`--project` keeps the caller's working directory; `--directory` would change it).
+- **From a clone of `main`:** use `uv run --project /absolute/path/to/sonicproof --extra model sonicproof mcp`
+  as the server command (`--project` keeps the caller's working directory; `--directory` would change it).
 
-**If you are an agent reading this repository:** install with `uv tool install "sonicproof[model]"` (or
-`uv sync --extra model` inside a clone and prefix commands with `uv run --project /absolute/path/to/sonicproof`),
-run `sonicproof doctor --load` once, then follow the skill (`sp skill show` prints it). Without MCP, every
-analysis command works from the shell with `--json` — `sp rank "prompt" a.wav b.wav --json`,
-`sp report take.wav "prompt" --json`, `sp qc *.wav --json`. Pass absolute local file paths; never play audio
-to "listen" — Sonicproof is your ears.
-
-**Agent skill** — the skill teaches an agent the loop that makes generated audio trustworthy: *generate
+**3. Add the agent skill** — it teaches an agent the loop that makes generated audio trustworthy: *generate
 several takes → rank them → check the best one → rephrase or reseed when nothing matches → deliver the pick
 with its scorecard*. It ships with the package:
 
@@ -232,29 +222,44 @@ sp skill show                 # print it, for agents that read skills from elsew
 ```
 
 In a clone it lives at [`src/sonicproof/skill/SKILL.md`](https://github.com/kanaworksai-hue/sonicproof/blob/main/src/sonicproof/skill/SKILL.md).
+[`examples/stable_audio_loop.py`](https://github.com/kanaworksai-hue/sonicproof/blob/main/examples/stable_audio_loop.py)
+runs the same loop as a script, with one MCP client for a Stable Audio server and one for Sonicproof.
 
-[`examples/stable_audio_loop.py`](https://github.com/kanaworksai-hue/sonicproof/blob/main/examples/stable_audio_loop.py) runs the same loop as a script, with one MCP
-client for a Stable Audio server and one for Sonicproof.
+**If you are an agent reading this repository:** do steps 1–3, then follow the skill (`sp skill show` prints
+it). Without MCP, every analysis command works from the shell with `--json`, e.g.
+`sp rank "prompt" /abs/a.wav /abs/b.wav --json`. Pass absolute local file paths; never play audio to "listen"
+— Sonicproof is your ears.
 
 ## How to read a score
 
-Raw similarity between a prompt and a clip is not very informative — almost any caption scores about the same
-against any clip. Sonicproof turns it into a **calibrated score in σ** by asking two relative questions:
+Every clip gets one of four verdicts. The workbench shows them in plain words with a 0–100 match bar; the CLI
+and `--json` give the verdict name and the raw score behind it.
+
+| Workbench | Verdict | Raw score | Meaning |
+|---|---|---|---|
+| ◎ Very close | **strong** | ≥ 2.0 | clearly sounds like the prompt |
+| ○ Close | **plausible** | ≥ 1.1 | sounds like the prompt |
+| △ Somewhat | **weak** | ≥ 0.3 | only loosely matches |
+| ✕ Not a match | **miss** | < 0.3 | does not sound like the prompt |
+
+Where the raw score comes from: plain similarity between a prompt and a clip is not very informative — almost
+any caption scores about the same against any clip — so Sonicproof asks two relative questions and averages
+them:
 
 1. **Clip side** — compared with ~440 everyday sound descriptions, how well does *your prompt* describe *this clip*?
 2. **Prompt side** — compared with a bank of 110 reference sounds, how much closer is *this clip* to *your prompt*?
 
-The two are averaged:
-
-| Verdict | Score | Meaning |
-|---|---|---|
-| **strong** | ≥ 2.0σ | clearly sounds like the prompt |
-| **plausible** | ≥ 1.1σ | sounds like the prompt |
-| **weak** | ≥ 0.3σ | only loosely matches |
-| **miss** | < 0.3σ | does not sound like the prompt |
+Both are measured in standard deviations above those baselines, which is why the CLI prints scores like
+`+3.79σ`. The workbench's match bar maps −1 … +3 onto 0 … 100.
 
 **Heard as** lists what the clip sounds most like; ✓ marks descriptions that agree with your prompt. When a
-verdict surprises you, that list usually explains why.
+verdict surprises you, that list usually explains why. Silent clips (nothing above −60 dBFS) are never scored
+as a match: they get `"verdict": "miss"` with `"note": "silent"` and rank last. Short one-shots such as UI
+clicks are judged normally.
+
+Sonicproof is a second opinion, not a judge: short, concrete prompts ("glass shattering") work better than long
+ones full of mixing notes, and very short transient sounds are the hardest to tell apart. Always listen
+before you ship.
 
 ### fit
 
@@ -276,10 +281,6 @@ Two sounds can be close in meaning without being the same file — four seeds of
 channel count or trimmed ends, and leaves different takes alone. In each group it keeps the best copy —
 lossless over lossy, not clipped, more of the spectrum (a higher sample rate only counts when it really
 holds more — an upsampled copy does not), more channels, longest, not turned down — and says why.
-
-Sonicproof is a second opinion, not a judge: short, concrete prompts ("glass shattering") work better than long
-ones full of mixing notes, and very short transient sounds are the hardest to tell apart. Always listen
-before you ship.
 
 ## Python
 
