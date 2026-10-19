@@ -171,12 +171,11 @@ def test_doctor_warns_when_a_cpu_only_pytorch_leaves_the_nvidia_gpu_idle(run, mo
     monkeypatch.setattr(model, "model_cached", lambda: True)
     fake = types.SimpleNamespace(__version__="2.14.1", version=types.SimpleNamespace(cuda=cuda))
     monkeypatch.setitem(sys.modules, "torch", fake)
-    monkeypatch.setattr(sys, "platform", "win32")
     real_which = shutil.which
     monkeypatch.setattr(shutil, "which", lambda n: "nvidia-smi" if n == "nvidia-smi" else real_which(n))
     r = run("doctor", env={"COLUMNS": "200"})
     assert r.exit_code == 0
-    assert ("CPU-only" in r.stdout) == (cuda is None)
+    assert ("CPU-only" in r.stdout) == (cuda is None and sys.platform != "darwin")  # Macs have no NVIDIA GPU
 
 
 def test_qc_table_fits_80_columns(run, tmp_path):
