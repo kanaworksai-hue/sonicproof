@@ -35,7 +35,7 @@ one shared space:
 - **fit** — does this sound suit the picture? A frame, a piece of concept art, a video clip, or a video's own
   soundtrack.
 - **search** — find sounds in your own library by words (any language), by example, or by picture.
-- **dedupe** — find the re-encoded, re-levelled and trimmed copies cluttering your library, and which one to keep.
+- **dedupe** — find the re-encoded, re-leveled and trimmed copies cluttering your library, and which one to keep.
 
 Everything runs on your machine — no uploads, no API keys — and you can use it from a local
 [workbench](#workbench) in your browser, from [your AI agent](#use-it-from-your-ai-agent) (MCP server + agent
@@ -208,12 +208,22 @@ codex mcp add sonicproof --env HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}" --
 sonicproof mcp --http --port 7789
 ```
 
-On Windows (PowerShell or cmd) the server finds the default cache by itself; pass `-e HF_HOME=…` only if you set
-`HF_HOME` (or `HF_HUB_CACHE`) yourself:
+On Windows the server finds the default cache (`%USERPROFILE%\.cache\huggingface`) by itself:
 
 ```powershell
 claude mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
 codex mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
+```
+
+If you moved the cache with `HF_HOME`, `HF_HUB_CACHE` or the older `HUGGINGFACE_HUB_CACHE`, pass it on — some
+clients (Codex, for one) start the server without it, and the server then reports the model as not downloaded.
+In PowerShell:
+
+```powershell
+codex mcp add sonicproof --env "HF_HOME=$env:HF_HOME" -- uvx --from "sonicproof[model]" sonicproof mcp
+# HF_HUB_CACHE or HUGGINGFACE_HUB_CACHE: pass the folder as HF_HUB_CACHE
+codex mcp add sonicproof --env "HF_HUB_CACHE=$env:HUGGINGFACE_HUB_CACHE" -- uvx --from "sonicproof[model]" sonicproof mcp
+# Claude Code: the same with -e instead of --env
 ```
 
 Other clients take the same command in their JSON config (write out the absolute path of your cache):
@@ -226,7 +236,7 @@ Other clients take the same command in their JSON config (write out the absolute
 
 - **Why `HF_HOME`:** MCP clients start servers with a reduced environment. Passing it makes the server use
   the same Hugging Face cache as your terminal, so the model is not downloaded a second time. If you set
-  `HF_HUB_CACHE` instead, pass that.
+  `HF_HUB_CACHE` (or the older `HUGGINGFACE_HUB_CACHE`) instead, pass that folder as `HF_HUB_CACHE`.
 - **Use absolute paths** in tool calls. A relative path resolves against the server's working directory, which
   is usually not yours.
 - **HTTP mode** listens on `127.0.0.1` only and refuses requests from web pages not served from localhost, but it has no

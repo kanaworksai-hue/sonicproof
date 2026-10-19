@@ -33,7 +33,7 @@ Sonicproof は、生成オーディオのためのローカル QA ツールで�
   位相、ループのつなぎ目。問題ごとに直し方を一行で示します。
 - **fit**：この音はこの映像に合うか？　1 フレーム、コンセプトアート、動画クリップ、または動画自身の音声トラック。
 - **search**：手元の音源ライブラリを、言葉（どの言語でも）・音の例・画像で検索。
-- **dedupe**：ライブラリに散らばる再エンコード・音量違い・頭尾カットのコピーを見つけ、どれを残すべきかを提案。
+- **dedupe**：ライブラリに散らばる再エンコード・音量違い・頭や末尾をカットしたコピーを見つけ、どれを残すべきかを提案。
 
 すべて手元のマシンで動きます。アップロードも API キーも不要です。ブラウザで開くローカルの[ワークベンチ](#ワークベンチ)、
 [AI エージェント](#ai-エージェントから使う)（MCP サーバー + エージェントスキル）、コマンドライン、[Python](#python) から使えます。
@@ -82,7 +82,7 @@ sonicproof doctor --load                   # モデルを一度だけダウン�
 
   ```powershell
   uv venv $HOME\sonicproof-env --python 3.12
-  # cu128 は pytorch.org があなたの GPU 向けに示す CUDA バージョンに
+  # cu128 は pytorch.org があなたの GPU 向けに示す CUDA バージョンに置き換え
   uv pip install --python $HOME\sonicproof-env torch torchvision --index-url https://download.pytorch.org/whl/cu128
   uv pip install --python $HOME\sonicproof-env "sonicproof[model]"
   & $HOME\sonicproof-env\Scripts\sonicproof.exe doctor --load   # PyTorch の行が "device cuda" になれば OK
@@ -113,7 +113,7 @@ sp qc ambience_loop.wav --loop --target-lufs -16
 sp report footsteps.wav "砂利道を歩く足音"
 sp report footsteps.wav "砂利道を歩く足音" --strict
 
-# この音は映像に合う？シーンの説明は任意です。
+# この音は映像に合う？　シーンの説明は任意です。
 sp fit sizzle.wav --image kitchen.png
 sp fit rumble.wav --video storm.mp4 "雷が鳴る嵐の夜"
 sp fit trailer.mp4                          # 動画自身の音声トラックを、その映像と照らし合わせる
@@ -163,11 +163,11 @@ sonicproof serve                            # http://localhost:7788 を開きま
   △ 少し近い · ✕ 違う）、0〜100 の一致度バー、技術チェックごとのドットが並び、技術的な指摘はやさしい言葉と直し方で示します。
 - **ライブラリ**：フォルダを選んでインデックスを作り（進捗表示あり）、言葉・音のドロップ・画像で検索。**重複** タブにはコピーと
   残すべきファイルが並びます（何も削除しません）。ここで作るインデックスはキャッシュに置くので、フォルダには何も書き込みません。
-- **映像**：画像や動画をドロップ：音の言葉で何が映っているかを見る、インボックスの音を採点する、ライブラリから合う音を探す、
-  動画自身の音声トラックを判定する。
+- **映像**：画像や動画をドロップすると、何が映っているかを音の言葉で確認したり、インボックスの音を採点したり、
+  ライブラリから合う音を探したり、動画自身の音声トラックを判定したりできます。
 
 判定の裏にある生の数値は **詳細** を開けば見られます。**設定 → プロモード** にすると常に表示されます。
-設定ではキャッシュの使用量の確認と消去もできます。インボックスから外したファイルは、ドロップ時に作ったコピーだけが削除されます
+設定ではキャッシュの使用量の確認と消去もできます。インボックスからファイルを外すと、ドロップ時に作ったコピーだけが削除されます
 （元のファイルには一切触れません）。
 
 画面表示は英語と日本語に対応しています。ブラウザの言語に合わせて表示され、切り替えもできます。音が鳴るのは再生ボタンを押したときだけです。
@@ -200,12 +200,22 @@ codex mcp add sonicproof --env HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}" --
 sonicproof mcp --http --port 7789
 ```
 
-Windows（PowerShell / cmd）ではサーバーが既定のキャッシュを自分で見つけます。`HF_HOME`（または `HF_HUB_CACHE`）を
-自分で設定している場合だけ `-e HF_HOME=…` を付けてください：
+Windows ではサーバーが既定のキャッシュ（`%USERPROFILE%\.cache\huggingface`）を自分で見つけます：
 
 ```powershell
 claude mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
 codex mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
+```
+
+`HF_HOME`、`HF_HUB_CACHE` または旧来の `HUGGINGFACE_HUB_CACHE` でキャッシュの場所を変えている場合は、それをサーバーに
+渡してください。クライアントによっては（Codex など）これらの変数を渡さずにサーバーを起動するため、モデルが未ダウンロード
+と判定されます。PowerShell では：
+
+```powershell
+codex mcp add sonicproof --env "HF_HOME=$env:HF_HOME" -- uvx --from "sonicproof[model]" sonicproof mcp
+# HF_HUB_CACHE または HUGGINGFACE_HUB_CACHE の場合：そのフォルダーを HF_HUB_CACHE として渡す
+codex mcp add sonicproof --env "HF_HUB_CACHE=$env:HUGGINGFACE_HUB_CACHE" -- uvx --from "sonicproof[model]" sonicproof mcp
+# Claude Code の場合：--env の代わりに -e
 ```
 
 ほかのクライアントでは、JSON 設定に同じコマンドを書きます（キャッシュのパスは絶対パスで）：
@@ -217,14 +227,14 @@ codex mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
 ```
 
 - **`HF_HOME` を渡す理由：** MCP クライアントは最小限の環境変数でサーバーを起動します。渡しておけばターミナルと同じ
-  Hugging Face キャッシュを使い、モデルを二重にダウンロードしません。`HF_HUB_CACHE` を設定している場合はそちらを渡します。
+  Hugging Face キャッシュを使い、モデルを二重にダウンロードしません。`HF_HUB_CACHE`（または旧来の `HUGGINGFACE_HUB_CACHE`）を設定している場合は、そのフォルダーを `HF_HUB_CACHE` として渡します。
 - **ツール呼び出しでは絶対パスを。** 相対パスはサーバーの作業ディレクトリを基準に解決されますが、それは通常あなたの作業ディレクトリとは異なります。
 - **HTTP モード**は `127.0.0.1` だけで待ち受け、localhost 以外から配信されたページからのリクエストは拒否しますが、認証はありません。
   同じマシン上のどのプロセスからも呼べます。気になる場合は stdio を使ってください。
 - **`main` のクローンから動かす：** サーバーのコマンドは `uv run --project /absolute/path/to/sonicproof --extra model sonicproof mcp`
   （`--project` は呼び出し側の作業ディレクトリを保ちます。`--directory` だと変わってしまいます）。
 
-**3. エージェントスキルを追加**　エージェントに次の流れを教え、生成音声を信頼できるものにします：「テイクを複数生成 → 順位付け →
+**3. エージェントスキルを追加**：エージェントに次の流れを教え、生成音声を信頼できるものにします：「テイクを複数生成 → 順位付け →
 ベストをチェック → どれも合わなければプロンプトを言い換えるかシードを変える → 選んだテイクをスコアカード付きで渡す」。
 パッケージに同梱されています：
 

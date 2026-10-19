@@ -84,10 +84,10 @@ sonicproof doctor --load                   # 下载一次模型，并检查环�
   # cu128 换成 pytorch.org 为你的显卡给出的 CUDA 版本
   uv pip install --python $HOME\sonicproof-env torch torchvision --index-url https://download.pytorch.org/whl/cu128
   uv pip install --python $HOME\sonicproof-env "sonicproof[model]"
-  & $HOME\sonicproof-env\Scripts\sonicproof.exe doctor --load   # PyTorch 一行应显示 "device cuda"
+  & $HOME\sonicproof-env\Scripts\sonicproof.exe doctor --load   # PyTorch 那一行应显示 "device cuda"
   ```
 
-  用 venv 里的普通 `pip` 也一样：按同样顺序装这两次。之后 README 里写 `sonicproof` 的地方（包括下面 MCP server 的命令）
+  在 venv 里用普通 `pip` 也一样：按同样的顺序分两次安装。之后 README 里写 `sonicproof` 的地方（包括下面 MCP server 的命令）
   都换成 `$HOME\sonicproof-env\Scripts\sonicproof.exe`（或把这个文件夹加到 `PATH`）。
 - **只做技术检查？** `qc` 不需要模型：`pip install sonicproof`（不带 `[model]`）就够了。
 - **想用最新的 `main`：** `git clone https://github.com/kanaworksai-hue/sonicproof`，在里面运行
@@ -114,7 +114,7 @@ sp report footsteps.wav "踩在碎石路上的脚步声" --strict
 # 这个声音配这个画面吗？对场景的文字说明可加可不加。
 sp fit sizzle.wav --image kitchen.png
 sp fit rumble.wav --video storm.mp4 "暴风雨夜，雷声"
-sp fit trailer.mp4                          # 用视频自带的音轨对它自己的画面
+sp fit trailer.mp4                          # 用视频自带的音轨对照它自己的画面
 ```
 
 ### 你的音效库
@@ -139,7 +139,7 @@ sp dedupe ~/SFX                             # 完全重复和近似重复（不�
 
 | 退出码 | 含义 |
 |---|---|
-| `0` | 完成。`check` / `rank` / `fit` 不论判定结果都返回 0——请读判定结果。 |
+| `0` | 完成。`check` / `rank` / `fit` 不论判定结果都返回 0——请查看判定结果。 |
 | `1` | `qc` 有不合格项、`report --strict` 的结论不是 SHIP，或 `doctor` 有检查项失败。 |
 | `2` | 输入有问题：文件不存在或读不了、音频为空、参数值不对。 |
 | `3` | 环境有问题：没装模型 extra、模型没下载且处于离线、需要 ffmpeg、端口被占用。 |
@@ -154,8 +154,8 @@ sp dedupe ~/SFX                             # 完全重复和近似重复（不�
 sonicproof serve                            # 打开 http://localhost:7788
 ```
 
-- **Inbox（收件箱）**——拖入音频文件或整个文件夹。提示词从 Stable Audio 的 `.json` sidecar 文件（与音频同名）里读（也可以自己输入）。
-  同一提示词的多个 take 自动分组、排名，最好的一条标上 **Use this one**。如果一组里没有一条像样的，
+- **Inbox（收件箱）**——拖入音频文件或整个文件夹。提示词从 Stable Audio 的 `.json` sidecar 文件里读（也可以自己输入）。
+  同一提示词的多个 take 自动分组、排名，最好的一条标上 **Use this one**。如果一组里没有一条听起来对的，
   它会直接告诉你，并建议换一种写法。每张卡片显示叠在频谱图上的波形、一句话结论（◎ Very close · ○ Close ·
   △ Somewhat · ✕ Not a match）、0–100 的一致度条和每项技术检查的指示点；技术问题用通俗的话说明，并给出修复建议。
 - **Library（音效库）**——选一个文件夹，建索引（有进度显示），然后按文字、拖入一个声音或按图片搜索。
@@ -194,12 +194,21 @@ codex mcp add sonicproof --env HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}" --
 sonicproof mcp --http --port 7789
 ```
 
-Windows（PowerShell 或 cmd）上 server 自己就能找到默认缓存；只有你自己设置过 `HF_HOME`（或 `HF_HUB_CACHE`）时才需要加
-`-e HF_HOME=…`：
+Windows 上 server 自己就能找到默认缓存（`%USERPROFILE%\.cache\huggingface`）：
 
 ```powershell
 claude mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
 codex mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
+```
+
+如果你用 `HF_HOME`、`HF_HUB_CACHE` 或旧的 `HUGGINGFACE_HUB_CACHE` 把缓存移到了别处，就要把它传给 server——有些客户端
+（比如 Codex）启动 server 时不带这些变量，server 会以为模型还没下载。PowerShell 写法：
+
+```powershell
+codex mcp add sonicproof --env "HF_HOME=$env:HF_HOME" -- uvx --from "sonicproof[model]" sonicproof mcp
+# HF_HUB_CACHE 或 HUGGINGFACE_HUB_CACHE：把那个目录作为 HF_HUB_CACHE 传
+codex mcp add sonicproof --env "HF_HUB_CACHE=$env:HUGGINGFACE_HUB_CACHE" -- uvx --from "sonicproof[model]" sonicproof mcp
+# Claude Code：同样的写法，把 --env 换成 -e
 ```
 
 其它客户端在 JSON 配置里写同样的命令（缓存目录请写成绝对路径）：
@@ -211,7 +220,7 @@ codex mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
 ```
 
 - **为什么要传 `HF_HOME`：** MCP 客户端启动 server 时只给很少的环境变量。传了它，server 就和你的终端用同一个
-  Hugging Face 缓存，不会再下载一遍模型。如果你设置的是 `HF_HUB_CACHE`，就传它。
+  Hugging Face 缓存，不会再下载一遍模型。如果你设置的是 `HF_HUB_CACHE`（或旧的 `HUGGINGFACE_HUB_CACHE`），就把那个目录作为 `HF_HUB_CACHE` 传。
 - **工具调用里请用绝对路径。** 相对路径是相对 server 的工作目录解析的，通常不是你的目录。
 - **HTTP 模式**只监听 `127.0.0.1`，并拒绝不是来自 localhost 的网页发来的请求，但没有认证：本机上的任何进程都能调用它。
   介意的话请用 stdio。
@@ -256,7 +265,7 @@ sp skill show                 # 打印出来，给从别处读取 skill 的 agen
 
 **Heard as（听起来像）** 列出这段声音最像什么；✓ 表示和你的提示词意思一致。判定结果出乎意料时，这个列表通常能解释原因。
 静音的声音（没有任何部分高于 −60 dBFS）永远不会被判为一致：它们得到 `"verdict": "miss"` 和 `"note": "silent"`，
-排在最后。UI 点击这类很短的单发音效照常判定。
+排在最后。UI 点击音这类很短的单发音效也照常判定。
 
 Sonicproof 是第二意见，不是裁判：简短具体的提示词（“玻璃碎裂”）比塞满混音术语的长提示词效果好，
 非常短促的瞬态声音最难区分。交付之前请一定亲耳听一遍。
