@@ -75,9 +75,20 @@ sonicproof doctor --load                   # 下载一次模型，并检查环�
   Hugging Face 下载到它的默认缓存目录。不需要 Hugging Face 账号或 token。
 - **ffmpeg** 只在读取 M4A / AAC / MP4 等 libsndfile 不支持的格式，以及 `fit` / `search` 处理视频时需要。
   WAV、FLAC、OGG、MP3 不需要它。
-- **Windows + NVIDIA 显卡：** PyPI 上的 Windows 版 PyTorch 只支持 CPU。请先按
-  [pytorch.org](https://pytorch.org/get-started/locally/) 在一个 Python 环境里安装带 CUDA 的 PyTorch，再在同一个环境里
-  `pip install "sonicproof[model]"`（`uv tool install` 和 `uvx` 会另建环境，装上的是 CPU 版）。
+- **Windows + NVIDIA 显卡：** PyPI 上的 Windows 版 PyTorch 只支持 CPU（`uv tool install` 和 `uvx` 装的也是它）。
+  用 CPU 一样能跑，只是慢一些。想用显卡，请先建一个环境，把 **`torch` 和 `torchvision` 一起**装成 CUDA 版——只装
+  `torch` 的话，`sonicproof[model]` 会拉来更新的 `torchvision`，把 torch 悄悄换回 CPU 版。PowerShell 里：
+
+  ```powershell
+  uv venv $HOME\sonicproof-env --python 3.12
+  # cu128 换成 pytorch.org 为你的显卡给出的 CUDA 版本
+  uv pip install --python $HOME\sonicproof-env torch torchvision --index-url https://download.pytorch.org/whl/cu128
+  uv pip install --python $HOME\sonicproof-env "sonicproof[model]"
+  & $HOME\sonicproof-env\Scripts\sonicproof.exe doctor --load   # PyTorch 一行应显示 "device cuda"
+  ```
+
+  用 venv 里的普通 `pip` 也一样：按同样顺序装这两次。之后 README 里写 `sonicproof` 的地方（包括下面 MCP server 的命令）
+  都换成 `$HOME\sonicproof-env\Scripts\sonicproof.exe`（或把这个文件夹加到 `PATH`）。
 - **只做技术检查？** `qc` 不需要模型：`pip install sonicproof`（不带 `[model]`）就够了。
 - **想用最新的 `main`：** `git clone https://github.com/kanaworksai-hue/sonicproof`，在里面运行
   `uv sync --extra model`，然后用 `uv run sp …` 执行命令（在其它目录下用 `uv run --project /path/to/sonicproof sp …`）。
@@ -183,6 +194,14 @@ codex mcp add sonicproof --env HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}" --
 sonicproof mcp --http --port 7789
 ```
 
+Windows（PowerShell 或 cmd）上 server 自己就能找到默认缓存；只有你自己设置过 `HF_HOME`（或 `HF_HUB_CACHE`）时才需要加
+`-e HF_HOME=…`：
+
+```powershell
+claude mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
+codex mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
+```
+
 其它客户端在 JSON 配置里写同样的命令（缓存目录请写成绝对路径）：
 
 ```json
@@ -192,7 +211,7 @@ sonicproof mcp --http --port 7789
 ```
 
 - **为什么要传 `HF_HOME`：** MCP 客户端启动 server 时只给很少的环境变量。传了它，server 就和你的终端用同一个
-  Hugging Face 缓存，不会再下载一遍模型。
+  Hugging Face 缓存，不会再下载一遍模型。如果你设置的是 `HF_HUB_CACHE`，就传它。
 - **工具调用里请用绝对路径。** 相对路径是相对 server 的工作目录解析的，通常不是你的目录。
 - **HTTP 模式**只监听 `127.0.0.1`，并拒绝不是来自 localhost 的网页发来的请求，但没有认证：本机上的任何进程都能调用它。
   介意的话请用 stdio。

@@ -27,6 +27,9 @@ Sonicproof is an MCP server (tools `check`, `rank`, `qc`, `report`, `fit`, `sear
    ```
 
    `HF_HOME` makes the server use the same model cache as the terminal (MCP servers get a reduced environment).
+   On Windows (PowerShell / cmd) that syntax doesn't work and isn't needed: the server finds the default cache
+   itself, so run `claude mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp`, adding
+   `-e HF_HOME=<absolute path>` only if the user set `HF_HOME` (or `-e HF_HUB_CACHE=…` for that one).
 
 Before Sonicproof is on PyPI, `uvx --from "sonicproof[model]"` fails. Use a clone instead: `uv sync --extra model`
 inside it, then replace `uvx --from "sonicproof[model]" sonicproof` with

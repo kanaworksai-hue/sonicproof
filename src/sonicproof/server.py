@@ -686,6 +686,15 @@ def _check_root(raw: Any) -> str:
     return str(Path(root).resolve())
 
 
+def _drives() -> list[dict]:
+    """Windows drive roots, so the folder picker can reach D:\\ and beyond (going up from ~ stops at C:\\).
+    A: and B: are skipped: probing a legacy floppy letter can stall."""
+    if os.name != "nt":
+        return []
+    roots = (f"{c}:\\" for c in "CDEFGHIJKLMNOPQRSTUVWXYZ")
+    return [{"name": r, "path": r} for r in roots if os.path.isdir(r)]
+
+
 def _scan_inbox(root: Path) -> list[Path]:
     """Audio files under a folder dropped on the Inbox, with limits: hidden and system folders are skipped,
     and a folder with too many files is refused instead of hashing the whole disk."""
@@ -988,6 +997,7 @@ def create_app(engine: service.Engine | None = None, home: Path | None = None) -
             p = Path.home() / name
             if p.is_dir():
                 places.append({"name": name, "path": str(p)})
+        places += _drives()
         return {
             "path": str(base),
             "parent": str(base.parent) if base.parent != base else None,

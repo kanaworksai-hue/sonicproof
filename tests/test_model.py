@@ -19,7 +19,9 @@ def _snapshot(hub, model_id=model.MODEL_ID, rev="abc123def4567890"):
 
 @pytest.fixture
 def clean_env(monkeypatch):
-    for k in ("HF_HUB_CACHE", "HF_HOME", "XDG_CACHE_HOME", "HF_HUB_OFFLINE", "SONICPROOF_DEVICE"):
+    for k in ("HF_HUB_CACHE", "HUGGINGFACE_HUB_CACHE", "HF_HOME", "XDG_CACHE_HOME"):
+        monkeypatch.delenv(k, raising=False)
+    for k in ("HF_HUB_OFFLINE", "SONICPROOF_DEVICE"):
         monkeypatch.delenv(k, raising=False)
     return monkeypatch
 
@@ -34,6 +36,8 @@ def test_hub_cache_dir_resolution_order(tmp_path, clean_env):
     assert model.hub_cache_dir() == tmp_path / "xdg" / "huggingface" / "hub"
     clean_env.setenv("HF_HOME", str(tmp_path / "hf"))
     assert model.hub_cache_dir() == tmp_path / "hf" / "hub"
+    clean_env.setenv("HUGGINGFACE_HUB_CACHE", str(tmp_path / "legacy"))  # older name, still read by the hub
+    assert model.hub_cache_dir() == tmp_path / "legacy"
     clean_env.setenv("HF_HUB_CACHE", str(tmp_path / "hubcache"))
     assert model.hub_cache_dir() == tmp_path / "hubcache"
 

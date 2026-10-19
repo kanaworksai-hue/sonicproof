@@ -76,10 +76,22 @@ sonicproof doctor --load                   # downloads the model once and checks
   downloaded from Hugging Face into its usual cache on first use. No Hugging Face account or token is needed.
 - **ffmpeg** is only needed for M4A / AAC / MP4 and other formats libsndfile can't read, and for video in
   `fit` / `search`. WAV, FLAC, OGG and MP3 work without it.
-- **Windows + NVIDIA GPU:** the PyPI build of PyTorch for Windows is CPU-only. Install PyTorch with CUDA into a
-  Python environment first, following [pytorch.org](https://pytorch.org/get-started/locally/), then
-  `pip install "sonicproof[model]"` into that same environment (`uv tool install` and `uvx` make their own
-  environment and would get the CPU build).
+- **Windows + NVIDIA GPU:** the PyPI build of PyTorch for Windows is CPU-only (`uv tool install` and `uvx`
+  get that build too). Everything works on the CPU, only slower. To use the GPU, make an environment with the
+  CUDA build of **both `torch` and `torchvision`** first — installing only `torch` lets `sonicproof[model]` pull a
+  newer `torchvision` that silently swaps it back to the CPU build. In PowerShell:
+
+  ```powershell
+  uv venv $HOME\sonicproof-env --python 3.12
+  # cu128 or whichever CUDA version pytorch.org lists for your GPU
+  uv pip install --python $HOME\sonicproof-env torch torchvision --index-url https://download.pytorch.org/whl/cu128
+  uv pip install --python $HOME\sonicproof-env "sonicproof[model]"
+  & $HOME\sonicproof-env\Scripts\sonicproof.exe doctor --load   # the PyTorch row should say "device cuda"
+  ```
+
+  With plain `pip` in a venv it is the same two installs, in the same order. Use
+  `$HOME\sonicproof-env\Scripts\sonicproof.exe` (or add that folder to `PATH`) wherever this README says
+  `sonicproof`, including the MCP server command below.
 - **Technical checks only?** `qc` needs no model: `pip install sonicproof` (without `[model]`) is enough.
 - **Latest `main`:** `git clone https://github.com/kanaworksai-hue/sonicproof`, run `uv sync --extra model`
   inside it, and run commands with `uv run sp …` (or `uv run --project /path/to/sonicproof sp …` from any other
@@ -196,6 +208,14 @@ codex mcp add sonicproof --env HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}" --
 sonicproof mcp --http --port 7789
 ```
 
+On Windows (PowerShell or cmd) the server finds the default cache by itself; pass `-e HF_HOME=…` only if you set
+`HF_HOME` (or `HF_HUB_CACHE`) yourself:
+
+```powershell
+claude mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
+codex mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
+```
+
 Other clients take the same command in their JSON config (write out the absolute path of your cache):
 
 ```json
@@ -205,7 +225,8 @@ Other clients take the same command in their JSON config (write out the absolute
 ```
 
 - **Why `HF_HOME`:** MCP clients start servers with a reduced environment. Passing it makes the server use
-  the same Hugging Face cache as your terminal, so the model is not downloaded a second time.
+  the same Hugging Face cache as your terminal, so the model is not downloaded a second time. If you set
+  `HF_HUB_CACHE` instead, pass that.
 - **Use absolute paths** in tool calls. A relative path resolves against the server's working directory, which
   is usually not yours.
 - **HTTP mode** listens on `127.0.0.1` only and refuses requests from web pages not served from localhost, but it has no

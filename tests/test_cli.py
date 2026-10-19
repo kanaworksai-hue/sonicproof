@@ -159,6 +159,26 @@ def test_doctor_load_reports_the_model_it_just_downloaded(run, monkeypatch):
     assert "(cached)" in r.stdout and "not downloaded" not in r.stdout
 
 
+@pytest.mark.parametrize("cuda", [None, "12.8"])
+def test_doctor_warns_when_a_cpu_only_pytorch_leaves_the_nvidia_gpu_idle(run, monkeypatch, cuda):
+    import shutil
+    import types
+
+    import sonicproof.model as model
+
+    monkeypatch.setattr(model, "require_model_extra", lambda: None)
+    monkeypatch.setattr(model, "pick_device", lambda: "cpu")
+    monkeypatch.setattr(model, "model_cached", lambda: True)
+    fake = types.SimpleNamespace(__version__="2.14.1", version=types.SimpleNamespace(cuda=cuda))
+    monkeypatch.setitem(sys.modules, "torch", fake)
+    monkeypatch.setattr(sys, "platform", "win32")
+    real_which = shutil.which
+    monkeypatch.setattr(shutil, "which", lambda n: "nvidia-smi" if n == "nvidia-smi" else real_which(n))
+    r = run("doctor", env={"COLUMNS": "200"})
+    assert r.exit_code == 0
+    assert ("CPU-only" in r.stdout) == (cuda is None)
+
+
 def test_qc_table_fits_80_columns(run, tmp_path):
     a = tone(tmp_path / "a.wav", seconds=0.8, amp=0.99)  # cut-off tail etc: long hints
     r = run("qc", a, env={"COLUMNS": "80"})
@@ -200,9 +220,10 @@ def test_non_utf8_stdout_does_not_crash(tmp_path):
 
 
 def test_empty_hf_home_counts_as_unset(tmp_path):
-    code = "import os, sonicproof.cli; print('HF_HOME' in os.environ, 'HF_HUB_CACHE' in os.environ)"
-    p = _py(["-c", code], {"HF_HOME": "", "HF_HUB_CACHE": ""}, tmp_path)
-    assert p.stdout.decode().split() == ["False", "False"]
+    names = ("HF_HOME", "HF_HUB_CACHE", "HUGGINGFACE_HUB_CACHE")
+    code = f"import os, sonicproof.cli; print(*(v in os.environ for v in {names!r}))"
+    p = _py(["-c", code], dict.fromkeys(names, ""), tmp_path)
+    assert p.stdout.decode().split() == ["False", "False", "False"]
 
 
 def test_check_json_is_strict_for_audio_with_nan_samples(tmp_path, monkeypatch):

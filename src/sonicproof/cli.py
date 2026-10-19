@@ -9,9 +9,10 @@ import os
 import sys
 from pathlib import Path
 
-# An empty HF_HOME / HF_HUB_CACHE (`-e HF_HOME="$HF_HOME"` when it was never set) would make huggingface_hub
-# download into ./hub of whatever folder the process starts in: treat empty as unset, before any hub import.
-for _var in ("HF_HOME", "HF_HUB_CACHE"):
+# An empty HF_HOME / HF_HUB_CACHE / HUGGINGFACE_HUB_CACHE (`-e HF_HOME="$HF_HOME"` when it was never set)
+# would make huggingface_hub download into ./hub of whatever folder the process starts in: treat empty as
+# unset, before any hub import.
+for _var in ("HF_HOME", "HF_HUB_CACHE", "HUGGINGFACE_HUB_CACHE"):
     if os.environ.get(_var) == "":
         del os.environ[_var]
 # Quiet third-party chatter before anything heavy is imported (progress bars come back for a first download).
@@ -19,6 +20,8 @@ _WE_HID_HUB_BARS = "HF_HUB_DISABLE_PROGRESS_BARS" not in os.environ
 os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
 os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+# Windows without Developer Mode can't make symlinks; the hub copies files instead and warns at length.
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 
 import typer
 from rich.console import Console, Group
@@ -855,7 +858,20 @@ def doctor(load: bool = typer.Option(False, "--load", help="Also load the model 
         import torch
 
         dev = pick_device()
-        row(True, "PyTorch", f"{torch.__version__} · device {dev}")
+        # The PyPI PyTorch for Windows is CPU-only, and installing it after a CUDA build silently replaces it.
+        cpu_build = getattr(getattr(torch, "version", None), "cuda", None) is None
+        gpu_idle = (
+            dev == "cpu" and cpu_build and sys.platform != "darwin" and bool(shutil.which("nvidia-smi"))
+        )
+        row(
+            None if gpu_idle else True,
+            "PyTorch",
+            f"{torch.__version__} · device {dev}",
+            "NVIDIA GPU found, but this PyTorch is CPU-only. For the GPU, install torch and torchvision "
+            "together from pytorch.org (README: Windows + NVIDIA GPU)."
+            if gpu_idle
+            else "",
+        )
         MODEL_ID = _id
     except ImportError:
         row(False, "PyTorch", "missing", f"Install the model extra: {service.INSTALL_HINT}")

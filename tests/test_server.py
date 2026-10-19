@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 import time
 from pathlib import Path
 
@@ -10,7 +11,7 @@ import pytest
 import soundfile as sf
 from fastapi.testclient import TestClient
 
-from sonicproof import service
+from sonicproof import server, service
 from sonicproof.judge import Judge
 
 SR = 16_000
@@ -197,6 +198,14 @@ def test_library_index_search_and_dedupe(client, tmp_path):
     fs = client.get("/api/fs", params={"path": str(lib)}).json()
     assert fs["audio_files"] == 3 and fs["indexed"]
     assert not (lib / ".sonicproof").exists()  # the workbench never writes into the folder
+
+
+def test_folder_picker_lists_windows_drives(client, monkeypatch):
+    names = {p["name"] for p in client.get("/api/fs").json()["places"]}
+    assert ("C:\\" in names) == (os.name == "nt")
+    monkeypatch.setattr(server.os, "name", "nt")  # only _drives() reads it; any drives it finds are real ones
+    monkeypatch.setattr(server.os.path, "isdir", lambda p: p in ("C:\\", "D:\\"))
+    assert server._drives() == [{"name": "C:\\", "path": "C:\\"}, {"name": "D:\\", "path": "D:\\"}]
 
 
 def test_local_only(client):
