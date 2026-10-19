@@ -24,21 +24,21 @@
 **AI 生成的声音，真的是你要的那个吗？**
 
 Sonicproof 是一个在本机运行的生成音频质检工具，适用于 Stable Audio 等模型生成的音效、音乐和环境声。
-它用一个多语言模型来「听」——Google 的 [EmbeddingGemma 2](https://huggingface.co/google/embeddinggemma-2)，
+它用一个多语言模型来“听”——Google 的 [EmbeddingGemma 2](https://huggingface.co/google/embeddinggemma-2)，
 这个模型把文字、声音、图片和视频放进同一个向量空间：
 
 - **check**——这段声音听起来像提示词吗？提示词可以用任何语言写。
 - **rank**——同一个提示词生成了四个 seed，留哪一个？
-- **qc**——技术上干净吗？响度、真峰值、削波、直流偏移、静音、尾音被截断、爆音、相位、循环接缝——
-  每个问题都附一句修法。
+- **qc**——技术上干净吗？响度、真峰值、削波、直流偏移、静音、尾音被截断、咔嗒声、相位、循环接缝——
+  每个问题都附一句修复建议。
 - **fit**——这个声音配这个画面吗？可以是一帧截图、一张概念图、一段视频，或者视频自带的音轨。
-- **search**——在你自己的音效库里按文字、按示例声音或按图片找声音。
+- **search**——在你自己的音效库里按文字（任何语言）、按示例声音或按图片找声音。
 - **dedupe**——找出库里重新编码、改过音量、裁过头尾的重复副本，并告诉你该留哪一个。
 
 全部在你的电脑上运行——不上传、不需要 API key。可以在浏览器里的本地[工作台](#工作台)用，
 可以让[你的 AI agent](#在-ai-agent-里使用) 用（MCP server + agent skill），也可以在命令行和 [Python](#python) 里用。
 
-![Sonicproof 工作台：生成的多个 take 按提示词分组，每组最好的一条标着 “Use this one”](https://raw.githubusercontent.com/kanaworksai-hue/sonicproof/main/docs/images/workbench.jpg)
+![Sonicproof 工作台：生成的多个 take 按提示词分组，每组最好的一条标着“Use this one”](https://raw.githubusercontent.com/kanaworksai-hue/sonicproof/main/docs/images/workbench.jpg)
 
 ```text
 $ sp check dog_bark.wav "狗在叫"
@@ -70,13 +70,14 @@ uv tool install "sonicproof[model]"        # 或者：pip install "sonicproof[mo
 sonicproof doctor --load                   # 下载一次模型，并检查环境
 ```
 
-- **Python 3.11+**。Apple Silicon（MPS）、CUDA 和 CPU 都能跑。`sp` 是 `sonicproof` 的简写。
+- **Python 3.11 及以上**（在 3.11–3.13 上测试过）。Apple Silicon（MPS）、CUDA 和 CPU 都能跑。`sp` 是 `sonicproof` 的简写。
 - **模型**——[EmbeddingGemma 2](https://huggingface.co/google/embeddinggemma-2)，约 1.5 GB——第一次使用时从
   Hugging Face 下载到它的默认缓存目录。不需要 Hugging Face 账号或 token。
 - **ffmpeg** 只在读取 M4A / AAC / MP4 等 libsndfile 不支持的格式，以及 `fit` / `search` 处理视频时需要。
   WAV、FLAC、OGG、MP3 不需要它。
 - **Windows + NVIDIA 显卡：** PyPI 上的 Windows 版 PyTorch 只支持 CPU。请先按
-  [pytorch.org](https://pytorch.org/get-started/locally/) 安装带 CUDA 的 PyTorch，再安装 Sonicproof。
+  [pytorch.org](https://pytorch.org/get-started/locally/) 在一个 Python 环境里安装带 CUDA 的 PyTorch，再在同一个环境里
+  `pip install "sonicproof[model]"`（`uv tool install` 和 `uvx` 会另建环境，装上的是 CPU 版）。
 - **只做技术检查？** `qc` 不需要模型：`pip install sonicproof`（不带 `[model]`）就够了。
 - **想用最新的 `main`：** `git clone https://github.com/kanaworksai-hue/sonicproof`，在里面运行
   `uv sync --extra model`，然后用 `uv run sp …` 执行命令（在其它目录下用 `uv run --project /path/to/sonicproof sp …`）。
@@ -84,7 +85,7 @@ sonicproof doctor --load                   # 下载一次模型，并检查环�
 ## 用法
 
 ```bash
-# 提示词遵从度。不写提示词时，从 Stable Audio 的 .json 附带文件里读。
+# 提示词遵从度。不写提示词时，从 Stable Audio 的 .json sidecar 文件里读。
 sp check explosion.wav "巨大的爆炸，碎片四溅"
 sp check thunder.wav
 
@@ -115,25 +116,26 @@ sp search --image frame.png --in ~/SFX      # 适合这张图的
 sp dedupe ~/SFX                             # 完全重复和近似重复（不会删除任何文件）
 ```
 
-音效库的文件夹必须明确指定：`index DIR`、`search … --in DIR`、`dedupe DIR`（家目录和磁盘根目录会被拒绝——
-请指向放音效的那个文件夹）。索引存在 `~/SFX/.sonicproof/`（加 `--in-cache` 改存到 `~/.cache/sonicproof`，
-适合只读文件夹）。`search` 和 `dedupe` 会顺手更新索引，所以 `sp index` 可以不跑。
+音效库的文件夹必须明确指定：`index DIR`、`search … --in DIR`、`dedupe DIR`（家目录、磁盘根目录和系统目录会被拒绝——
+请指向放音效的那个文件夹）。索引存在 `~/SFX/.sonicproof/`；加 `--in-cache` 则改存到 Sonicproof 的缓存里，
+不往文件夹里写任何东西（只读文件夹会自动使用缓存）。`search` 和 `dedupe` 会自动更新索引，所以 `sp index` 可以不跑。
 
 ### 写脚本：`--json` 和退出码
 
 分析类命令——`check`、`rank`、`qc`、`report`、`fit`、`index`、`search`、`dedupe`——都支持 `--json`
-（`doctor`、`serve`、`mcp`、`skill` 是给人用的）。`qc --json` 永远输出数组，每个文件一条记录，只有一个文件也一样。
-读不了的文件在数组里标为 `"status": "error"`，其它文件照常检查。
+（`doctor`、`serve`、`mcp`、`skill` 不支持）。`qc --json` 永远输出数组，每个文件一条记录，只有一个文件也一样。
+在 `qc` 和 `rank` 里，读不了的文件会标为 `"error"`，其它文件照常处理，此时退出码为 2。
 
 | 退出码 | 含义 |
 |---|---|
 | `0` | 完成。`check` / `rank` / `fit` 不论判定结果都返回 0——请读判定结果。 |
-| `1` | `qc` 有不合格项，或 `report --strict` 的结论不是 SHIP。 |
+| `1` | `qc` 有不合格项、`report --strict` 的结论不是 SHIP，或 `doctor` 有检查项失败。 |
 | `2` | 输入有问题：文件不存在或读不了、音频为空、参数值不对。 |
 | `3` | 环境有问题：没装模型 extra、模型没下载且处于离线、需要 ffmpeg、端口被占用。 |
 
 加 `--json` 时，错误也是 JSON——在 stdout 输出 `{"error": {"code": "not_found", "message": "…", "file": "…"}}`
-——脚本不用去解析 traceback。设置 `SONICPROOF_DEBUG=1` 可以看完整的 traceback。
+——脚本不用去解析 traceback。例外是命令行用法错误（缺参数、选项值超出范围）：仍然输出普通的用法提示，退出码为 2。
+设置 `SONICPROOF_DEBUG=1` 可以看完整的 traceback。
 
 ## 工作台
 
@@ -141,13 +143,13 @@ sp dedupe ~/SFX                             # 完全重复和近似重复（不�
 sonicproof serve                            # 打开 http://localhost:7788
 ```
 
-- **Inbox（收件箱）**——拖入音频文件或整个文件夹。提示词从 Stable Audio 的 `.json` 附带文件里读（也可以自己输入）。
+- **Inbox（收件箱）**——拖入音频文件或整个文件夹。提示词从 Stable Audio 的 `.json` sidecar 文件（与音频同名）里读（也可以自己输入）。
   同一提示词的多个 take 自动分组、排名，最好的一条标上 **Use this one**。如果一组里没有一条像样的，
-  它会直接告诉你，并建议换一种写法。每张卡片显示频谱图上的波形、一句话结论（◎ Very close · ○ Close ·
-  △ Somewhat · ✕ Not a match）、0–100 的一致度条和每项技术检查的指示点；技术问题用大白话写明并附修法。
+  它会直接告诉你，并建议换一种写法。每张卡片显示叠在频谱图上的波形、一句话结论（◎ Very close · ○ Close ·
+  △ Somewhat · ✕ Not a match）、0–100 的一致度条和每项技术检查的指示点；技术问题用通俗的话说明，并给出修复建议。
 - **Library（音效库）**——选一个文件夹，建索引（有进度显示），然后按文字、拖入一个声音或按图片搜索。
   **Duplicates** 页列出重复副本和该留哪个（不会删除任何文件）。工作台的索引都放在缓存里，打开文件夹不会往里面写东西。
-- **Picture（画面）**——拖入图片或视频：看它在声音词汇里是什么样，用它给收件箱里的声音打分，在音效库里找配得上的声音，
+- **Picture（画面）**——拖入图片或视频：用声音描述词看看画面里有什么，用它给收件箱里的声音打分，在音效库里找配得上的声音，
   或者评判视频自带的音轨。
 
 每个结论背后的原始数字点开 **Details** 就能看到，或者在 **Settings → Pro mode** 里全局显示。
@@ -163,7 +165,7 @@ sonicproof serve                            # 打开 http://localhost:7788
 最快的办法：把这个仓库的链接发给你的 agent，让它检查自己生成的声音。它需要的一切都在这一节里。
 
 **1. 在终端里安装，并下载一次模型**（见[安装](#安装)）。MCP server 不会在工具调用里启动 1.5 GB 的下载——
-那看起来就像卡死了——所以请确保 `sonicproof doctor --load` 已经跑过一次。不安装也可以直接：
+那看起来就像卡死了——所以请确保 `sonicproof doctor --load` 已经跑过一次。也可以不做永久安装，直接：
 
 ```bash
 uvx --from "sonicproof[model]" sonicproof doctor --load
@@ -192,7 +194,7 @@ sonicproof mcp --http --port 7789
 - **为什么要传 `HF_HOME`：** MCP 客户端启动 server 时只给很少的环境变量。传了它，server 就和你的终端用同一个
   Hugging Face 缓存，不会再下载一遍模型。
 - **工具调用里请用绝对路径。** 相对路径是相对 server 的工作目录解析的，通常不是你的目录。
-- **HTTP 模式**只监听 `127.0.0.1`，并拒绝其它网站网页发来的请求，但没有认证：本机上的任何进程都能调用它。
+- **HTTP 模式**只监听 `127.0.0.1`，并拒绝不是来自 localhost 的网页发来的请求，但没有认证：本机上的任何进程都能调用它。
   介意的话请用 stdio。
 - **用 `main` 的克隆运行：** server 命令写成 `uv run --project /absolute/path/to/sonicproof --extra model sonicproof mcp`
   （`--project` 保留调用方的工作目录；`--directory` 会改掉它）。
@@ -212,7 +214,7 @@ sp skill show                 # 打印出来，给从别处读取 skill 的 agen
 
 **如果你是正在读这个仓库的 agent：** 完成第 1–3 步，然后按 skill 做（`sp skill show` 可以打印出来）。
 没有 MCP 时，所有分析命令都能在 shell 里加 `--json` 使用，例如 `sp rank "prompt" /abs/a.wav /abs/b.wav --json`。
-请传本地文件的绝对路径；不要靠播放音频来「听」——Sonicproof 就是你的耳朵。
+请传本地文件的绝对路径；不要靠播放音频来“听”——Sonicproof 就是你的耳朵。
 
 ## 怎么看分数
 
@@ -231,13 +233,13 @@ sp skill show                 # 打印出来，给从别处读取 skill 的 agen
 1. **声音侧**——和约 440 条日常声音描述相比，*你的提示词*对*这段声音*的描述有多准？
 2. **提示词侧**——和 110 条参考声音相比，*这段声音*离*你的提示词*近了多少？
 
-两者都以「高出基准多少个标准差」来衡量，所以 CLI 显示的分数形如 `+3.79σ`。工作台的一致度条把 −1 … +3 映射到 0 … 100。
+两者都以“高出基准多少个标准差”来衡量，所以 CLI 显示的分数形如 `+3.79σ`。工作台的一致度条把 −1 … +3 映射到 0 … 100。
 
 **Heard as（听起来像）** 列出这段声音最像什么；✓ 表示和你的提示词意思一致。判定结果出乎意料时，这个列表通常能解释原因。
 静音的声音（没有任何部分高于 −60 dBFS）永远不会被判为一致：它们得到 `"verdict": "miss"` 和 `"note": "silent"`，
 排在最后。UI 点击这类很短的单发音效照常判定。
 
-Sonicproof 是第二意见，不是裁判：简短具体的提示词（「玻璃碎裂」）比塞满混音术语的长提示词效果好，
+Sonicproof 是第二意见，不是裁判：简短具体的提示词（“玻璃碎裂”）比塞满混音术语的长提示词效果好，
 非常短促的瞬态声音最难区分。交付之前请一定亲耳听一遍。
 
 ### fit
@@ -249,14 +251,14 @@ Sonicproof 是第二意见，不是裁判：简短具体的提示词（「玻璃
   你自己写的场景说明也会计入。
 
 **Pictured as** 里的 ✓ 表示声音也听起来像这一项；**Heard as** 里的 ✓ 表示画面里也有这一项。
-匹配度弱时，Sonicproof 会根据画面建议一个提示词——重新生成时很有用。
-视频按每秒一帧取样（最多 32 帧，较长的视频均匀分布取样）。
+判定为 weak 或 miss 时，Sonicproof 会根据画面建议一个提示词——重新生成时很有用。
+视频按每秒一帧取样（最多 32 帧，较长的视频在整段上均匀取样）。
 
 ### dedupe
 
 两段声音意思相近，不一定是同一个文件——比如同一提示词的四个 seed。所以 `dedupe` 只用嵌入找候选，
 然后比较信号本身（时间对齐的频谱指纹）。这样，格式、编码、音量、采样率、声道数不同或裁过头尾的副本会被归为一组，
-不同的 take 则不会。每组里它会留下最好的那份——无损优先于有损、没有削波、频谱更完整
+不同的 take 则不会。每组里它会选出建议保留的那份——无损优先于有损、没有削波、频谱更完整
 （只有真的包含更多内容时，更高的采样率才算数，升采样的副本不算）、声道更多、更长、没被调小音量——并说明理由。
 
 ## Python
@@ -277,14 +279,16 @@ lib = Library("~/SFX")
 lib.update(lambda wave: judge.embedder.embed_audio([wave])[0])
 for hit in search_text(lib, judge, "雨打在铁皮屋顶上"):
     print(hit.path, hit.score, hit.verdict)
+for group in find_duplicates(lib):
+    print(group.keep, group.reason)
 ```
 
 ## 开发
 
 ```bash
 uv sync --extra model --group dev && uv run pytest
-cd web && npm ci && npm run dev             # 带热重载的界面；/api 代理到 :7788 上的 `sp serve`
-npm run build                               # 把打包好的界面写进 src/sonicproof/web
+cd web && npm ci && npm run dev             # 带热重载的界面（:5173）；/api 代理到 :7788 上的 `sp serve`
+npm run build                               #（在 web/ 里）把打包好的界面写进 src/sonicproof/web
 ```
 
 界面文字在 `web/src/i18n/`（`en.ts`、`ja.ts`）；类型检查会保证两边的键一致。

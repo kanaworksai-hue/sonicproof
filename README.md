@@ -34,7 +34,7 @@ one shared space:
   loop seams — with a one-line fix for every problem.
 - **fit** — does this sound suit the picture? A frame, a piece of concept art, a video clip, or a video's own
   soundtrack.
-- **search** — find sounds in your own library by words, by example, or by picture.
+- **search** — find sounds in your own library by words (any language), by example, or by picture.
 - **dedupe** — find the re-encoded, re-levelled and trimmed copies cluttering your library, and which one to keep.
 
 Everything runs on your machine — no uploads, no API keys — and you can use it from a local
@@ -71,13 +71,15 @@ uv tool install "sonicproof[model]"        # or: pip install "sonicproof[model]"
 sonicproof doctor --load                   # downloads the model once and checks the setup
 ```
 
-- **Python 3.11+.** Apple Silicon (MPS), CUDA and CPU all work. `sp` is a short alias for `sonicproof`.
+- **Python 3.11 or newer** (tested on 3.11–3.13). Apple Silicon (MPS), CUDA and CPU all work. `sp` is a short alias for `sonicproof`.
 - **The model** — [EmbeddingGemma 2](https://huggingface.co/google/embeddinggemma-2), about 1.5 GB — is
   downloaded from Hugging Face into its usual cache on first use. No Hugging Face account or token is needed.
 - **ffmpeg** is only needed for M4A / AAC / MP4 and other formats libsndfile can't read, and for video in
   `fit` / `search`. WAV, FLAC, OGG and MP3 work without it.
-- **Windows + NVIDIA GPU:** the PyPI build of PyTorch for Windows is CPU-only. Install PyTorch with CUDA first,
-  following [pytorch.org](https://pytorch.org/get-started/locally/), then install Sonicproof.
+- **Windows + NVIDIA GPU:** the PyPI build of PyTorch for Windows is CPU-only. Install PyTorch with CUDA into a
+  Python environment first, following [pytorch.org](https://pytorch.org/get-started/locally/), then
+  `pip install "sonicproof[model]"` into that same environment (`uv tool install` and `uvx` make their own
+  environment and would get the CPU build).
 - **Technical checks only?** `qc` needs no model: `pip install sonicproof` (without `[model]`) is enough.
 - **Latest `main`:** `git clone https://github.com/kanaworksai-hue/sonicproof`, run `uv sync --extra model`
   inside it, and run commands with `uv run sp …` (or `uv run --project /path/to/sonicproof sp …` from any other
@@ -107,9 +109,6 @@ sp fit rumble.wav --video storm.mp4 "a stormy night with thunder"
 sp fit trailer.mp4                          # a video's own soundtrack against its own picture
 ```
 
-Prompts, scene notes and search queries don't have to be English — the model is multilingual, so Japanese,
-Chinese and many other languages work as they are.
-
 ### Your sound library
 
 ```bash
@@ -121,26 +120,29 @@ sp dedupe ~/SFX                             # duplicates and near-duplicates (no
 ```
 
 The library folder is always given explicitly: `index DIR`, `search … --in DIR`, `dedupe DIR` (your home
-folder or a drive root are refused — point at the folder that holds your sounds).
-The index lives in `~/SFX/.sonicproof/` (use `--in-cache` to keep it in `~/.cache/sonicproof` instead, e.g. for
-read-only folders). `search` and `dedupe` bring it up to date on the fly, so `sp index` is optional.
+folder, a drive root and system folders are refused — point at the folder that holds your sounds).
+The index lives in `~/SFX/.sonicproof/`; `--in-cache` keeps it in Sonicproof's cache instead, so nothing is
+written into the folder (read-only folders use the cache automatically). `search` and `dedupe` bring the index
+up to date on the fly, so `sp index` is optional.
 
 ### Scripting: `--json` and exit codes
 
 The analysis commands — `check`, `rank`, `qc`, `report`, `fit`, `index`, `search`, `dedupe` — take `--json`
-(`doctor`, `serve`, `mcp` and `skill` are for people). `qc --json` always prints an array, one record per file,
-even for a single file. A file that can't be read gets `"status": "error"` in that array and the rest are
-still checked.
+(`doctor`, `serve`, `mcp` and `skill` don't). `qc --json` always prints an array, one record per file, even for
+a single file. In `qc` and `rank`, a file that can't be read is marked `"error"` and the rest are still
+processed; the exit code is then 2.
 
 | Exit code | Meaning |
 |---|---|
 | `0` | Done. `check` / `rank` / `fit` exit 0 whatever the verdict — read the verdict. |
-| `1` | `qc` found a failure, or `report --strict` did not say SHIP. |
+| `1` | `qc` found a failure, `report --strict` did not say SHIP, or a `doctor` check failed. |
 | `2` | A problem with the input: missing or unreadable file, empty audio, bad option value. |
 | `3` | A problem with the setup: model extra not installed, model not downloaded and offline, ffmpeg needed, port busy. |
 
 With `--json`, errors are JSON too — `{"error": {"code": "not_found", "message": "…", "file": "…"}}` on stdout
-— so a script never has to parse a traceback. Set `SONICPROOF_DEBUG=1` to see the full traceback.
+— so a script doesn't have to parse a traceback. Command-line usage mistakes (a missing argument, an option
+value out of range) are the exception: they print the usual usage message and exit 2. Set
+`SONICPROOF_DEBUG=1` to see the full traceback.
 
 ## Workbench
 
@@ -176,7 +178,7 @@ Everything it needs is in this section.
 
 **1. Install and download the model once, in a terminal** ([Install](#install)). The MCP server never starts
 the 1.5 GB download inside a tool call — it would look like a hang — so make sure `sonicproof doctor --load`
-has run once. Without installing anything:
+has run once. Or, without a permanent install:
 
 ```bash
 uvx --from "sonicproof[model]" sonicproof doctor --load
@@ -206,7 +208,7 @@ Other clients take the same command in their JSON config (write out the absolute
   the same Hugging Face cache as your terminal, so the model is not downloaded a second time.
 - **Use absolute paths** in tool calls. A relative path resolves against the server's working directory, which
   is usually not yours.
-- **HTTP mode** listens on `127.0.0.1` only and refuses requests from web pages on other sites, but it has no
+- **HTTP mode** listens on `127.0.0.1` only and refuses requests from web pages not served from localhost, but it has no
   authentication: any process on your machine can call it. Use stdio when that matters.
 - **From a clone of `main`:** use `uv run --project /absolute/path/to/sonicproof --extra model sonicproof mcp`
   as the server command (`--project` keeps the caller's working directory; `--directory` would change it).
@@ -270,7 +272,7 @@ before you ship.
   those descriptions as if they were the prompt. Add your own words about the scene and they count too.
 
 **Pictured as** marks with ✓ what the clip also sounds like; **Heard as** marks what the picture also shows.
-When the fit is weak, Sonicproof suggests a prompt drawn from the picture — useful for regenerating.
+When the fit is weak or a miss, Sonicproof suggests a prompt drawn from the picture — useful for regenerating.
 Videos are sampled at one frame per second (up to 32 frames, spread evenly over longer clips).
 
 ### dedupe
@@ -278,7 +280,7 @@ Videos are sampled at one frame per second (up to 32 frames, spread evenly over 
 Two sounds can be close in meaning without being the same file — four seeds of the same prompt, say.
 `dedupe` therefore uses the embeddings only to find candidates, then compares the signals themselves
 (time-aligned spectral fingerprints), so it groups copies that differ in format, codec, level, sample rate,
-channel count or trimmed ends, and leaves different takes alone. In each group it keeps the best copy —
+channel count or trimmed ends, and leaves different takes alone. In each group it picks the copy to keep —
 lossless over lossy, not clipped, more of the spectrum (a higher sample rate only counts when it really
 holds more — an upsampled copy does not), more channels, longest, not turned down — and says why.
 
@@ -300,14 +302,16 @@ lib = Library("~/SFX")
 lib.update(lambda wave: judge.embedder.embed_audio([wave])[0])
 for hit in search_text(lib, judge, "rain on a tin roof"):
     print(hit.path, hit.score, hit.verdict)
+for group in find_duplicates(lib):
+    print(group.keep, group.reason)
 ```
 
 ## Development
 
 ```bash
 uv sync --extra model --group dev && uv run pytest
-cd web && npm ci && npm run dev             # UI with hot reload; proxies /api to `sp serve` on :7788
-npm run build                               # writes the bundled UI into src/sonicproof/web
+cd web && npm ci && npm run dev             # UI with hot reload on :5173; proxies /api to `sp serve` on :7788
+npm run build                               # (in web/) writes the bundled UI into src/sonicproof/web
 ```
 
 UI strings live in `web/src/i18n/` (`en.ts`, `ja.ts`); the type checker makes sure both have the same keys.
