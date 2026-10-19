@@ -6,7 +6,7 @@ readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.11"
-authors = [{ name = "Sonicproof contributors" }]
+authors = [{ name = "東京AI映像合同会社" }]
 keywords = [
     "audio", "sound-effects", "generative-audio", "audio-qa", "embeddings", "embeddinggemma",
     "stable-audio", "mcp", "loudness", "sound-library",
