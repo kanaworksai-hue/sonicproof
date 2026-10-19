@@ -96,6 +96,7 @@ def test_model_is_never_downloaded_in_a_call(call, tmp_path, monkeypatch):
     monkeypatch.setattr(model_mod, "require_model_extra", lambda: None)
     monkeypatch.setenv("HF_HOME", str(tmp_path / "hf"))
     monkeypatch.delenv("HF_HUB_CACHE", raising=False)
+    monkeypatch.delenv("HUGGINGFACE_HUB_CACHE", raising=False)
     monkeypatch.delenv("HF_HUB_OFFLINE", raising=False)
     monkeypatch.delenv("SONICPROOF_ALLOW_DOWNLOAD", raising=False)
     monkeypatch.setattr(mcp_server, "_engine", service.Engine(allow_download=False))

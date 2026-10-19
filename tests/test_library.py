@@ -419,8 +419,12 @@ def test_scan_skips_system_folders_and_symlinks_leaving_the_root(tmp_path):
     outside.mkdir()
     for p in (root / "a.wav", root / "Library" / "b.wav", root / "node_modules" / "c.wav", outside / "o.wav"):
         p.write_bytes(b"x")
-    (root / "in_link.wav").symlink_to(root / "a.wav")
-    (root / "out_link.wav").symlink_to(outside / "o.wav")
+    assert [p.name for p in scan(root)] == ["a.wav"]
+    try:
+        (root / "in_link.wav").symlink_to(root / "a.wav")
+        (root / "out_link.wav").symlink_to(outside / "o.wav")
+    except OSError:  # Windows without Developer Mode or admin rights (WinError 1314)
+        pytest.skip("this account can't create symlinks")
     assert sorted(p.name for p in scan(root)) == ["a.wav", "in_link.wav"]
 
 

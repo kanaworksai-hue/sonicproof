@@ -75,9 +75,22 @@ sonicproof doctor --load                   # モデルを一度だけダウン�
   Hugging Face から通常のキャッシュへダウンロードされます。Hugging Face のアカウントやトークンは不要です。
 - **ffmpeg** が必要なのは、M4A / AAC / MP4 など libsndfile が読めない形式と、`fit` / `search` で動画を扱うときだけです。
   WAV、FLAC、OGG、MP3 はなくても読めます。
-- **Windows + NVIDIA GPU：** PyPI の Windows 版 PyTorch は CPU 専用です。先に
-  [pytorch.org](https://pytorch.org/get-started/locally/) の手順で Python 環境に CUDA 版 PyTorch を入れ、同じ環境に
-  `pip install "sonicproof[model]"` してください（`uv tool install` や `uvx` は別の環境を作るため、CPU 版が入ります）。
+- **Windows + NVIDIA GPU：** PyPI の Windows 版 PyTorch は CPU 専用です（`uv tool install` や `uvx` でもこれが入ります）。
+  CPU でもすべて動きますが、遅くなります。GPU を使うには、先に **`torch` と `torchvision` を両方** CUDA 版で入れた環境を
+  作ってください。`torch` だけだと、`sonicproof[model]` が新しい `torchvision` を入れる際に torch が黙って CPU 版に
+  戻ってしまいます。PowerShell では：
+
+  ```powershell
+  uv venv $HOME\sonicproof-env --python 3.12
+  # cu128 は pytorch.org があなたの GPU 向けに示す CUDA バージョンに
+  uv pip install --python $HOME\sonicproof-env torch torchvision --index-url https://download.pytorch.org/whl/cu128
+  uv pip install --python $HOME\sonicproof-env "sonicproof[model]"
+  & $HOME\sonicproof-env\Scripts\sonicproof.exe doctor --load   # PyTorch の行が "device cuda" になれば OK
+  ```
+
+  venv で普通の `pip` を使う場合も、同じ 2 回のインストールを同じ順番で。以降この README の `sonicproof`（下の MCP
+  サーバーのコマンドも含む）は `$HOME\sonicproof-env\Scripts\sonicproof.exe` に置き換えてください（またはそのフォルダを
+  `PATH` に追加）。
 - **技術チェックだけなら：** `qc` はモデル不要です。`pip install sonicproof`（`[model]` なし）で足ります。
 - **最新の `main` を使う：** `git clone https://github.com/kanaworksai-hue/sonicproof` し、その中で `uv sync --extra model` を実行します。
   コマンドは `uv run sp …`（別のフォルダからは `uv run --project /path/to/sonicproof sp …`）で実行します。
@@ -187,6 +200,14 @@ codex mcp add sonicproof --env HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}" --
 sonicproof mcp --http --port 7789
 ```
 
+Windows（PowerShell / cmd）ではサーバーが既定のキャッシュを自分で見つけます。`HF_HOME`（または `HF_HUB_CACHE`）を
+自分で設定している場合だけ `-e HF_HOME=…` を付けてください：
+
+```powershell
+claude mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
+codex mcp add sonicproof -- uvx --from "sonicproof[model]" sonicproof mcp
+```
+
 ほかのクライアントでは、JSON 設定に同じコマンドを書きます（キャッシュのパスは絶対パスで）：
 
 ```json
@@ -196,7 +217,7 @@ sonicproof mcp --http --port 7789
 ```
 
 - **`HF_HOME` を渡す理由：** MCP クライアントは最小限の環境変数でサーバーを起動します。渡しておけばターミナルと同じ
-  Hugging Face キャッシュを使い、モデルを二重にダウンロードしません。
+  Hugging Face キャッシュを使い、モデルを二重にダウンロードしません。`HF_HUB_CACHE` を設定している場合はそちらを渡します。
 - **ツール呼び出しでは絶対パスを。** 相対パスはサーバーの作業ディレクトリを基準に解決されますが、それは通常あなたの作業ディレクトリとは異なります。
 - **HTTP モード**は `127.0.0.1` だけで待ち受け、localhost 以外から配信されたページからのリクエストは拒否しますが、認証はありません。
   同じマシン上のどのプロセスからも呼べます。気になる場合は stdio を使ってください。

@@ -41,9 +41,10 @@ def _env(name: str) -> str | None:
 
 def hub_cache_dir() -> Path:
     """Where Hugging Face keeps (or will download) models, resolved the way huggingface_hub does it:
-    ``HF_HUB_CACHE`` > ``HF_HOME/hub`` > ``XDG_CACHE_HOME/huggingface/hub`` > ``~/.cache/huggingface/hub``.
+    ``HF_HUB_CACHE`` > ``HUGGINGFACE_HUB_CACHE`` (the older name, still read by the hub) > ``HF_HOME/hub`` >
+    ``XDG_CACHE_HOME/huggingface/hub`` > ``~/.cache/huggingface/hub``.
     (No hub import: it freezes HF_HUB_OFFLINE on import.)"""
-    if hub := _env("HF_HUB_CACHE"):
+    if hub := _env("HF_HUB_CACHE") or _env("HUGGINGFACE_HUB_CACHE"):
         return Path(hub).expanduser()
     home = _env("HF_HOME") or os.path.join(_env("XDG_CACHE_HOME") or "~/.cache", "huggingface")
     return Path(home).expanduser() / "hub"
